@@ -1,7 +1,13 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Models\Post;
+use App\Models\User;
+use App\Models\Category;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PostControllerCRUD;
+use App\Http\Controllers\CategoryControllerCRUD;
 
 Route::get('/', function () {
     return view('welcome');
@@ -67,7 +73,7 @@ Route::get('/hola2/{nom}',function($nom) {
 Route::get('/hola/{nom}/{professio?}',function($nom, $professio = null) {
 
 	return '<h1>Hola '.$nom.' que eres '.$professio.' estás en un Mundo Cruel</h1>';
-})->name('nomprof'); // Veremos esto más adelante, es un alias
+})->name('nomprof'); // Tiene un alias
 
 
 ///////////////////// Routes con restricciones
@@ -143,6 +149,49 @@ Route::get('/redireccion',function() {
 }); 
 
 ///////////////////// Routes enlazadas con modelos (app>Models)
+
+
+Route::get('/usuaris/{usuari}', function(User $usuari){
+    return $usuari; 
+}); 
+
+Route::get('/posts/{post}', function(Post $post){
+    return $post; 
+}); 
+
+// Otro ejemplo con el Model Category 
+Route::get('/categories/{category}', function(Category $category){
+    return $category; 
+}); 
+
+Route::get('/posts2/{post:user_id}', function(Post $post){
+    return $post; 
+}); 
+
+
+///////////////////// Routes que cargan View 
+
+
+Route::get('/perfilview/{nom}', function($nom) {
+    return view('perfil', ['nom'=>$nom]); // pasamos un parámetro a la View
+}); 
+
+Route::get('/perfilusuari/{usuari}', function(User $usuari) {
+    return view('perfiluser',['user'=>$usuari]); // pasamos un Modelo a la View
+}); 
+
+
+///////////////////// MVC
+
+Route::get('/posts', [PostController::class, 'index']); // Ejecución del método index() del PostController
+
+///////////////////// CRUDs
+
+//// CRUD Post
+Route::resource('/postCRUD', PostControllerCRUD::class); // Genera todas la Route para el Controller de Post
+
+//// CRUD Category 
+Route::resource('/categoryCRUD', CategoryControllerCRUD::class); // Genera todas la Route para el Controller de Category
 
 
 

@@ -1,0 +1,1009 @@
+/////////////////////////////////////////////////////
+
+Bartolomé Sabater
+Emili Darder - Desenvolupament Entorn Servidor - 2024-25
+
+MVC en Laravel
+	Se explicará el paradigma MVC en Laravel
+	Se muestra la creación e interrelación de las Routes, View y Controllers 
+	MVC: Una Route -> Controller(método) <-> Model -> View(Model')  
+
+Routes (routes>web.php)
+	Routes con parámetros 
+	Routes con restricciones 
+	Routes con restricciones en AppServiceProvider
+	Routes con redirecciones
+	Agrupación de Routes
+	Routes enlazadas con Models (app>Models)
+	Routes que cargan View (resources>views) 
+	Route raíz (/)
+	Route automáticas para Controller CRUD
+
+Ejemplos de MVC
+	User -> Route -> Model -> User 
+	User -> Route -> View(Model) -> User
+	User -> Route -> Controller -> Model -> Controller(Model') -> View(Model') -> User
+
+View (resources>views)
+	Ejemplos de View
+	View con parámetros desde Route
+	View que muestran un Model
+	View CRUD
+
+Controller (app>Http>Controllers) 
+	Controller custom
+	Controller para CRUD
+
+Request (app>Http>Requests)
+	Request para validaciones y mensajes
+
+Rules (app>Rules)
+	Rules custom 
+
+Comenzamos la codificación del CRUD
+	create()
+	store()
+		
+/////////////////////////////////////////////////////
+
+// Hoy veremos Routers
+// Las routes se ubican en routes>web.php 
+// Define las rutas de nuestra web (usuarios desde un navegador web)
+// Recordar que routes>api.php contienen las rutas de nuestras API
+
+// Las Routes se encargan de gestionar el flujo de peticiones Http vía navegador
+// 	GET: Obtención del recurso indicado. Método utilizado cuando se solicita el contenido de un archivo HTML
+// 	POST: Añadir datos. Siempre es un método de creación
+// 	PUT: Solicitud para almacenar la entidad suministrada en la URI, si la entidad no existe se crea, si existe se actualiza
+// 	DELETE: Eliminación del recurso indicado
+// 	PATCH: Aplica modificaciones parciales al recurso indicado
+
+// Veamos la parte de Routes más sencilla en routes>web.php
+// Observar que existe un routes>auth.php que lo ha generado el Breeze cuando lo hemos instalado
+
+// Hacemos pruebas con rutas básicas en routes>web.php
+
+/////////////////////  Routes simples
+
+// Manipular el web.php para que aparezcan las siguientes funciones
+
+Route::get('/hola', function () {
+    return 'Hola mundo cruel';
+});
+
+// Con el navegador abrir la URL 
+http://<example-app>.test/hola
+
+// Mejorarlo con los siguiente y recargar la página
+Route::get('/hola',function() {
+    return '<h1>Hola Mundo Cruel</h1>';
+}); 
+
+// Refinarlo creando una página HTML
+Route::get('/index.html',function() {
+
+    $html_code = "<!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Laravel</title>
+                    </head>
+                    <body>
+                        <h1>I love Laravel</h1>
+                    </body>
+                    </html>"; 
+
+    return $html_code;
+}); 
+
+///////////////////// Routes con parámetros
+
+// Pueden capturarse parámetros que están dentro de la URI
+// 	para ellos se definen dentro de {} 
+// 	sólo caracteres alfabéticos y sin guiones
+
+// Ejemplo de Route con un parámetro en la URI
+Route::get('/hola/{nom}',function($nom) {
+
+    return '<h1>Hola '.$nom.' estás en un Mundo Cruel</h1>';
+})->name('holanom');  // Veremos esto más adelante, es un alias
+
+http://example-app.test/hola/Tomeu
+
+// Un poco más sofisticado
+
+Route::get('/hola2/{nom}',function($nom) {
+
+    $html_code = "<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Laravel</title>
+    </head>
+    <body>
+        <h1>I love $nom </h1>
+    </body>
+    </html>"; 
+    
+    return $html_code;
+}); 
+
+///////////////////// Routes con parámetros condicionados
+
+// A veces, el parámetro será opcional
+// Route con dos parámetros, uno de ellos opcional con valor por defecto
+
+Route::get('/hola/{nom}/{professio?}',function($nom, $professio = null) {
+	return '<h1>Hola '.$nom.' que eres '.$professio.' estás en un Mundo Cruel</h1>';
+})->name('nomprof'); // Veremos esto más adelante, es un alias
+
+// Llamarlo mediante
+http://<example-app.test>/hola/Tomeu/profesor
+http://<example-app.test>/hola/Tomeu/mecanico
+http://<example-app>.test/hola/Tomeu/
+
+// Observar que hay un conflicto con las rutas anteriores
+// Laravel mostrará la primera ruta de la lista de rutas que coincida
+// En nuestro caso, tenemos una ruta de dos parámetros que coincide con otra ruta de un solo parámetro
+// 	y antes dos Route coincidentes debido a parámetros opcionales se ejecuta la primera de la lista
+// Cuidar las casuísticas de parámetros 
+
+///////////////////// Routes con restricciones
+
+// Pueden definirse restricciones sobre los parámetros de una Route
+// 	si rompe la restricción se mostrará un error 404
+// Se pueden agrupar las restricciones y crear un "pattern" de restricciones
+// Los "pattern" de Laravel (no solo de las restricciones en Routes) se crean en app>Providers>AppServiceProvider.php 
+
+
+//// Ejemplo de Route con restricciones
+
+// El ejemplo solamente acepta letras 
+Route::get('/holar/{nom}',function($nom) {
+    return '<h1>Hola '.$nom.' estás en un Mundo Cruel</h1>';
+})->where('nom','[A-Za-z]+');  // podemos poner whereAlpha('nom');
+
+http://<blog-app>.test/holar/tomeu2
+
+
+// Con restricciones podemos poner plantillas o patterns
+// 	las plantilla se crea en app>Providers>AppServiceProvider.php y lo aplica POR TODO
+
+// En routes>web
+Route::get('/perfil/{id}',function($id) { // Route condicionada por plantilla 
+    return '<h3>Perfil Nº'.$id.'</h3>'; 
+}); 
+
+// En app>Providers>AppServiceProvider.php
+// 	recordar el use Illuminate\Support\Facades\Route;
+public function boot(): void
+{
+	// Restricción de formato para parámetro 'id'
+        Route::pattern('id', '[0-9]+'); 
+}
+
+http://<blog-app>.test/perfil/1 // Funciona OK
+http://<example-app>.test/perfil/1a // Genera un 404 Not Found
+
+///////////////////// Routes renombradas 
+
+//	permiten la generación a conveniencia de las rutas y redirecciones
+//// 	También es bueno para SEO
+
+// Creamos una Route con restricció en nombre (solo aceptará caracteres) 
+// Creamos Route con un alias (toda la ruta es un alias)
+// La Route completa 'http://<example-app.test>/holanueva' ahora tiene un alias 
+//	este alias se denomina 'salutacio'
+Route::get('/holanueva',function() {
+    return '<h1>Hola Nueva</h1>';
+})->name('salutacio'); // Alias, se usará más adelante
+
+// Creamos una Route con un enlace insertado de manera manual
+// 	recordar que el {id} sigue afectado por la restricción definida en app>Providers>AppServiceProvider 
+Route::get('/perfilr1/{id}',function($id) {
+    return "<h3>Perfil Nº ".$id."<a href='/holanueva'>saluda a </a></h3>"; 
+}); 
+
+// Llamamos a la Route y vemos que muestra un link html a 'http://<example-app>.test/holanueva'
+http://<example-app.test>/perfilr1/1
+
+// Podemos simplificar la route utilizando el alias definido anteriormente
+Route::get('/perfilr2/{id}',function($id) {
+    return "<h3>Perfil Nº ".$id."<a href='".route('salutacio')."'>saluda a </a></h3>"; 
+}); 
+
+http://<blog-app.test>/perfilr2/1
+
+// Estos alias son útiles cuando estamos usando rutas complejas 
+// Se facilita el control de las rutas mediante el renombrado 
+Route::get('/lñajalkjasljkasflkjasfd',function() {
+    return '<h1>Hola de nuevo, ruta rara es lñajalkjasljkasflkjasfd</h1>';
+})->name('rutarara'); 
+
+Route::get('/perfilr3/{id}',function($id) {
+    return "<h3>Perfil Nº".$id."<a href='".route('rutarara')."'>saluda</a></h3>"; 
+});
+
+http://<blog-app>.test/perfilr3/4
+
+//// Se puede utilizar el renombrado de rutas (alias) con la inclusión de parámetros
+
+// Recordar que la ruta 'hola' anterior requería de un parámetro
+// Este parámetro se deberá pasar desde la Route original, por lo que la Route original deberá incluirlo 
+Route::get('/hola/{nom}',function($nom) {
+
+    $html_code = "..."; 
+    
+    return $html_code;
+})->name('holanom');
+
+http://<example-app>.test/hola/tomeu
+
+// La llamada a la Route se hará con un parámetro
+// 	el parámetro se incluye mediante una array asociativo
+Route::get('/perfilr4/{id}',function($id) {
+    return "<h3>Perfil Nº".$id."<a href='".route('holanom',['nom'=>'Tommy'])."'>saluda</a></h3>"; 
+}); 
+
+http://<blog-app.test>/perfilr4/3
+
+
+// Ejemplo con varios parámetros (mediante un array asociativo)
+Route::get('/perfilr5/{id}',function($id) {
+    return "<h3>Perfil Nº".$id."<a href='".route('nomprof',['nom'=>'Tommy', 'professio'=>'Docent'])."'>saluda</a></h3>"; 
+});
+
+
+///////////////////// Agrupación de Routes para condiciones determinadas
+
+//// Se agrupan mediante Route::group()
+//// Sería similar a un Provider
+
+// Definamos una agrupación: 
+// En este caso la ruta tiene un prefijo y la correcta será 'admin/hola'
+// Es bueno para aplicar redirección genérica de rutas (middleware, prefijos, subdominios, etc.) 
+
+Route::group(['prefix'=>'admin','name'=>'admin'], function() {
+    
+    Route::get('/hola/{nom}',function($nom) {
+        return '<h1>Hola '.$nom.' es agrupación</h1>';
+    })->name('saluda'); //dando nombre a la ruta, ya la tomará de manera correcta '/admin/hola'
+
+    Route::get('/usuari/{nom}', function ($nom) {
+        return '<h1>Hola '.$nom.' es agrupación</h1>';
+    })->name('user'); 
+});
+
+http://<blog-app.test>/admin/hola/tomeu
+http://<blog-app.test>/admin/usuari/tomeu
+
+
+// Usando redirección con agrupación
+// Observa como está redireccionada correctamente usando el alias de la ruta
+Route::get('/redireccion',function() {
+    return "<h3>Perfil Nº <a href='".route('saluda',['nom'=>'Tommy'])."'>saluda</a></h3>"; 
+}); 
+http://<example-app.test>/redireccion
+
+
+///////////////////// Routes enlazadas con modelos (app>Models)
+
+//// Se utiliza para la carga y volcado de información en pantalla 
+//// Devuelve la consulta a la DDBB del Model por su ID
+//// Recordar que Laravel aplica el MVC 
+////	por lo que el acceso a la DDBB nunca será directo, será siempre mediante un Model
+
+// Ejemplo de extracción de info de la tabla Users mediante su ID 
+// 	si hemos respetado los estándares de Laravel, el ID es la PK de la tabla
+// User es un Model ya definido en app>Models>User.php
+// Recordar que el nombre de la variable debe ser el mismo en los 3 lugares
+// Recordar hacer el import en web.php (use App\Models\User;)
+
+// No volcará todos los campos de la tabla
+// 	recordar que el Model User hay restricciones 
+//	para los campos password y remember_token
+Route::get('/usuaris/{usuari}', function(User $usuari){
+    return $usuari; 
+}); 
+http://<example-app>.test/usuaris/1
+
+// Otro ejemplo con el Model Post
+Route::get('/posts/{post}', function(Post $post){
+    return $post; 
+}); 
+http://<example-app.test>/posts/1
+
+// Otro ejemplo con el Model Category 
+Route::get('/categories/{category}', function(Category $category){
+    return $category; 
+}); 
+
+/// EJERCICIO: De la misma manera, codificar una para cada Model
+
+// Refinamos la llamada para obtener por campos específicos en lugar del ID
+// El iguiente ejemplo extrae por user_id en lugar de por ID
+// Observar que solamente extraerá un registro. 
+Route::get('/posts2/{post:user_id}', function(Post $post){
+    return $post; 
+}); 
+http://<blog-app.test>/posts2/2
+
+
+///////////////////// Routes que cargan View (resources>views) 
+
+
+//// 	donde ya tenemos algunos ejemplos que se crean por defecto
+//// El nombre de una View es nombreview.blade.php
+//// También se le pueden pasar parámetros a una View
+//// Las View necesitan de una Route, es la manera de acceder a la View, NO se puede acceder directamente 
+
+/// Recordar que Laravel trabaja bajo el paradigma MVC, y no es lo más correcto lo que hemos hecho en los ejemplos
+// 	que es extraer información de la DDBB atacando directamente los Model 
+// El paradigma MVC utiliza las View para mostrar información al usuario,
+//	y esta info proviene de un Model
+// Por tanto, crearemos una nueva Route donde la respuesta de la Route será una View
+//	y la View hará uso de un Model para obtener la info de la DDBB
+//	luego lo refinaremos para añadir un Controller
+
+// Las View están en resources>views y son archivos del tipo 'blade.php'
+
+// La siguiente Route (o ruta raíz) existe por defecto '/'
+// 	es la Route raiz y carga la View 'welcome' resources>views>welcome.blade.php
+// Podemos observar que la welcome.blade.php está maquetada usando Tailwindcss
+// Si no existiera la Route raíz por defecto la crearíamos de la siguiente manera
+
+/*
+Route::get('/', function () {
+    return view('welcome');
+});
+*/ 
+
+// Observad que ahora, la respuesta de una Route es una View
+
+// Creamos una View denominada perfil en resources>views>perfil.blade.php
+// 	las View, desafortunadamente, se crean 'a pelo', es código HTML. 
+// 	y la llamaremos creando una Route 
+// Recordar que a las View no se puede accede directamente, se debe acceder mediante una Route
+// Obviamente, a las View se les pueden pasar parámetros mediante arrays asociativos
+//	y de esta manera obtenemos tener maquetar View según estos parámetros
+
+// La View en resouces>views>perfil.blade.php
+//	Copy & Paste de la 'welcome' o crearla 'a pelo'
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device- width, initial- scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hola Mundo Cruel</h1>
+    <h3>Esto es perfil.blade.php</h3>
+
+    <?php
+        echo "<h2> Tu nombre es = ".$nom."</h2>"; //Nos permite código php el que queramos
+    ?>
+
+    <!-- No obstante, hay una manera mejor de evitar incrustar php en el html --> 
+    <h3>Hola {{$nom}}</h3>
+
+</body>
+</html>
+
+// Ahora creamos la Route
+Route::get('/perfilview/{nom}', function($nom) {
+    return view('perfil', ['nom'=>$nom]);
+}); 
+
+http://<blog-app.test>/perfilview/Tommy
+
+
+// Podemos hacerla un poco más compleja pasándole a la View un registro de la DDBB
+// Recordar que esto es MVC, lo que haremos será pasar el Model a la View
+// La Route llamará a un Model, como hasta ahora, pero no lo mostrará en pantalla, lo pasará a la View
+//	y será la View la que muestre el resultado del Model
+// Empezamos a tener un esqueleto de MVC (no tenemos todavía el Controller, lo veremos después). 
+// Route que llaman al Model User y se muestra mediante una View (Recordar las restricciones del Model User)
+
+// Creamos la View resources>views>perfiluser.blade.php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil User</title>
+</head>
+<body>
+    
+    <h1>Hola Mundo Cruel</h1>
+    <h3>Esto es perfiluser.blade.php</h3>
+
+    <h3>Hola toda tu información en formato raw es :{{$user}}</h3>
+
+    <h2>Tu ID: {{$user->id}}</h2>
+    <h2>Hola Señor/a: {{$user->name}}</h2>
+    <h2>Tu correo es: {{$user->email}}</h2>
+    <h2>Tu rol es: {{$user->role}}</h2>
+
+</body>
+</html>
+
+// La Route será similar a las que llamaban a un Model
+//  pero ahora el resultado del Model lo pasamos a la View
+ 
+Route::get('/perfilusuari/{usuari}', function(User $usuari) {
+    return view('perfiluser',['user'=>$usuari]);
+}); 
+
+http://<blog-app.test>/perfilusuari/1
+
+
+///////////////////// MVC
+
+// Vamos a redondear lo anterior añadiendo un Controller para acabar teniendo el verdadero paradigma MVC
+
+//// Controladores en app>Http>Controllers
+//// Contendrán la lógica que negocio, será lo que usemos para la lógica del proyecto
+//// Agrupan la lógica de peticiones Http y responden con una View, String, Json, etc. 
+//// Hasta ahora, el usuario llamaba a una Route que obtenía un Model y retornaba el Model mediante una View
+////	Usuario -> Route(Model) -> View(Model) -> Usuario 
+//// Ahora, una Route (con parámetros) va a un Controller (a un método concreto) que recupera el Model lo trata y lo pasa a una View
+////    Usuario -> Route(parametros) -> Controller(Model) -> View(Model') -> Usuario
+//// Veámoslo paso a paso
+
+//// Laravel puede crear un Controller con el artisan
+
+// Creamos un primer Controller para el Model 'Post' (app>http>controllers>PostController) 
+λ php artisan make:controller PostController
+
+// Vamos a conectarlo con una Route
+
+// En routes>web.php añadir lo siguiente
+//      no olvidar el use App\Http\Controllers\PostController;
+Route::get('/posts', [PostController::class, 'index']); // Ejecución del método index() del PostController
+
+// En app>Http>Controllers>PostController.php añadir el método index() 
+class PostController extends Controller
+{
+    public function index() {
+        return "Estoy en PostController->index()"; 
+    }
+}
+
+// Llamarlo 
+http://blog-app.test/posts
+
+// En definitiva, los Controller 'organizan' las llamadas a las View
+//      y es la ubicación donde aplicaremos la lógica de negocio
+
+// Creamos un nuevo Controller pensando ya en un CRUD
+php artisan make:controller PostControllerCRUD --resource 
+php artisan make:controller CategoryControllerCRUD --resource
+
+// Verlo en app>http>controllers>PostControllerCRUD
+// Verlo en app>http>controllers>CategoryControllerCRUD
+// ha generado una serie de métodos por defecto :
+//      index() GET, listado de recursos (registros) 
+//      create() GET, crea la antesala para un nuevo recurso; 
+//              genera formulario de creación de un nuevo elemento, lo recibirá el store()
+//      store(Request $request) POST, guardar el recurso; se recibe la información del créate()
+//      show (string $id), muestra la información de un recurso único
+//      edit (string $id) GET, crea el formulario para la actualización de un recurso
+//      update (Request $request, string $id) PATCH, 
+//              crea o actualiza un recurso; se recibe la información del edit()
+//      destroy (string $id) DELETE, elimina el recurso 
+
+// Ahora, habría que crear el acceso a cada una de las Route 
+// 	    en web.php crear las Route con la llamada a cada uno de los métodos del PostControllerCRUD 
+// Laravel proporciona una manera de generar las llamadas sin tener que escribirlo todo
+// 	en web.php poner lo siguiente:
+// No olvidar el use App\Http\Controllers\PostControllerCRUD;
+// No olvidar el use App\Http\Controllers\CategoryControllerCRUD;
+
+Route::resource('/postCRUD', PostControllerCRUD::class); // Genera todas la Route para el Controller de Post
+Route::resource('/categoryCRUD', CategoryControllerCRUD::class); // Genera todas la Route para el Controller de Category
+
+
+// Para saber las rutas que generarán automáticamente, acudimos al artisan para verlas TODAS las de nuestra aplicación
+λ php artisan route:list
+  
+	GET|HEAD        postCRUD ............................................................... postCRUD.index › PostControllerCRUD@index
+  	POST            postCRUD ............................................................... postCRUD.store › PostControllerCRUD@store
+  	GET|HEAD        postCRUD/create ........................................................ postCRUD.create › PostControllerCRUD@create
+  	GET|HEAD        postCRUD/{postCRUD} .................................................... postCRUD.show › PostControllerCRUD@show
+  	PUT|PATCH       postCRUD/{postCRUD} .................................................... postCRUD.update › PostControllerCRUD@update
+  	DELETE          postCRUD/{postCRUD} .................................................... postCRUD.destroy › PostControllerCRUD@destroy
+  	GET|HEAD        postCRUD/{postCRUD}/edit ............................................... postCRUD.edit › PostControllerCRUD@edit
+
+  	GET|HEAD        categoryCRUD ........................................................... categoryCRUD.index › CategoryControllerCRUD@index
+  	POST            categoryCRUD ........................................................... categoryCRUD.store › CategoryControllerCRUD@store
+  	GET|HEAD        categoryCRUD/create .................................................... categoryCRUD.create › CategoryControllerCRUD@create
+  	GET|HEAD        categoryCRUD/{categoryCRUD} ............................................ categoryCRUD.show › CategoryControllerCRUD@show
+  	PUT|PATCH       categoryCRUD/{categoryCRUD} ............................................ categoryCRUD.update › CategoryControllerCRUD@update
+  	DELETE          categoryCRUD/{categoryCRUD} ............................................ categoryCRUD.destroy › CategoryControllerCRUD@destroy
+  	GET|HEAD        categoryCRUD/{categoryCRUD}/edit ....................................... categoryCRUD.edit › CategoryControllerCRUD@edit
+
+
+///// Vamos ya a crear los registros de Post (Comenzamos a confeccionar el CRUD)
+
+// En resoruces>views crear una carpeta de post y dentro un create.blade.php queda así:
+// resources>views>post>create.blade.php // el archivo está vacío 
+
+// Ahora, en PostControllerCRUD, en la función create(), hay que cargar la nueva vista recién creada (que ahora está vacía)
+public function create()
+{
+     return view('post.create'); // Llama a la vista create.blade.php
+}
+
+// La vista está vacía, hay que darle forma
+// Incluir el siguiente código HTML (o similar) en create.blade.php
+//      analizar un poco lo que hace esta View
+
+// Podríamos tener dudas con la ruta a poner en el action del form
+php artisan route:list
+  POST            postCRUD ................................... postCRUD.store › PostControllerCRUD@store
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+</head>
+<body>
+    <h3>Create Post</h3>
+    <form action="{{ route('postCRUD.store') }}" method="post">
+
+        <label for="title">Títol</label>
+        <input type="text" name="title" />
+    
+        <label for="url_clean">Url neta</label>
+        <input type="text" name="url_clean" />
+    
+        <label for="content">Contingut</label>
+        <textarea name="content" col="3" ></textarea>
+    
+        <input type="submit" value="Crear" >
+    </form>
+</body>
+</html>
+
+// Ejercicio: Repetir todo lo anterior para Category
+
+// Tratamos de arrancarlo, y podríamos tener dudas con la ruta para arrancarlo
+php artisan route:list
+	GET|HEAD        postCRUD/create ................................... postCRUD.create › PostControllerCRUD@create
+  	GET|HEAD        categoryCRUD/create ............................... categoryCRUD.create › CategoryControllerCRUD@create
+
+
+http://blog-app.test/postCRUD/create // Y debería cargar el formulario de crear Posts
+http://blog-app.test/categoryCRUD/create // Y debería cargar el formulario de crear Categories
+
+
+// Ojo con el <form action="{{ route('postCRUD.store') }}" method="post">
+//  comprobarlo con el artisan route:list (asegurarse de que es el correcto)
+	POST            postCRUD .............................................. postCRUD.store › PostControllerCRUD@store
+	POST            categoryCRUD .......................................... categoryCRUD.store › CategoryControllerCRUD@store
+
+
+*********************   AQUI, AQUI, AQUI, 
+
+
+// Y saltará al método store(Request $request) del PostControllerCRUD
+
+// Para probarlo en el store(Request $request) del PostControllerCRUD poner el siguiente código 
+public function store(Request $request)
+{
+     echo "estoy en function store() de PostControllerCrud"; 
+}
+
+// Arrancarlo 
+http://<example-app.test>/postCRUD/create // Y rellenar formulario y pulsar botón create
+http://<blog-app.test>/categoryCRUD/create
+419 Page Expired
+
+// Y el POST no es válido: 419 Page Expired
+// No es válido porque si lo fuera, se podría hacer este POST desde cualquier formulario con esta llamada 
+// Laravel, aplica seguridad; para que funcione hay que incluir el token de seguridad (al igual que en llamadas API) 
+// Añadir el token de seguridad (@csrf) en la View create.blade.php
+<form action="{{ route('postCRUD.store') }}" method="post">
+        @csrf <!-- Security Token -->	
+    	<label for="title">Títol</label>
+	...
+</form>
+
+// Recargar página http://<example-app>.test/postCRUD/create y mirar código fuente, 
+// 	habrá añadido algo similar a lo siguiente:
+// <input type="hidden" name="_token" value="J5EvHBoZuse3Oggn1gpEusOdfvfQSAmTuRmrCAJC" autocomplete="off">
+// Es un token de sesión, consigue la persistencia mediante un token. 
+
+// Reenviar formulario y ahora sí obtendremos el echo
+// Comentar el echo del store() y añadir lo siguiente
+// 	se muestran tres maneras diferentes de poder acceder a la info enviada por el formulario 
+
+    public function store(Request $request)
+    {
+        echo "estoy en function store() de PostControllerCRUD"; 
+
+        echo 'Title'.$request->input('title').'<br>';
+        echo 'Title'.$request->title.'<br>';
+        echo 'Title'.request('title'); 
+    }
+
+// Aprovechamos para introducir la función dd()
+// 	que desgrana el $request y lo pinta en pantalla
+// Es una buena técnica para depurar, es un volcado raw en pantalla del $request
+
+    public function store(Request $request)
+    {
+        dd($request); // Desgrana el $request y lo pinta en pantalla
+        echo "estoy en function store() de PostControllerCRUD"; 
+
+        echo 'Title'.$request->input('title').'<br>';
+        echo 'Title'.$request->title.'<br>';
+        echo 'Title'.request('title'); 
+    }
+
+// Desglosar el request el request / parameters que contiene los parámetros recibidos. 
+  +request: Symfony\Component\HttpFoundation\InputBag {#42 ▼
+    #parameters: array:4 [▼
+      "_token" => "FwT2tZwnwoYEpiA5O7UoiZpw31X8H3vrBzZI7lG5"
+      "title" => "asfdasdf"
+      "url_clean" => "asdfasdf"
+      "content" => "asdfasdfasdf"
+    ]
+
+// Obviamente, en el Controller, hay que recuperar la información del formulario, 
+//	posiblemente tratarla, y guardarla en la DDBB
+// Recordar que hemos llamado a la Route http://<blog-app.test>/postCRUD/create (postCRUD.create del Controller) para generar el formulario mediante la View (create.blade.php)
+//	y que el formulario llamará a http://<blog-app.test>/postCRUD (postCRUD.store del Controller) para guardar los datos en la DDBB
+// Sería bueno hacer un dibujo de este diálogo para acabar de entenderlo. 
+
+
+// Refinamos la recepción de datos en postCRUD.store() para poder filtrar los datos recibidos
+// Es muy recomendable aplicar un 'control' sobre los datos (aún habiéndolos en el front) en la recepción de los mismos
+// En un desarrollo con Front, Back, Api, DDBB, a veces, no es el mismo equipo en cada capa
+//	por tanto, es recomendable llevar a cabo controles en cada capa. 
+//	además, no hemos aplicado ningún control en el formulario con HTML + JavaScript
+// Ahora el Controller se convierte en un elemento valioso en la arquitectura MVC
+// Usaremos el validate sobre el $request y aplicarlo a cualquier columna
+
+
+// Ahora validamos los datos del formulario en la recepción de los mismos
+// Dejar el siguiente código, y comentar todo lo anterior (o ponerlo después de la validación), en postCRUD.store()
+
+        // Validación de los input del formulario
+        $request->validate([
+            'title' => 'required|unique:posts|min:5|max:255',
+        ]);
+
+// required ; Obligatorio
+// unique:posts ; No existe ya en la DDBB, valores únicos, Ojo es nombre de la tabla. 
+// min:5|max:255 ; Tamaño máximo y mínimo 
+
+// Hacer pruebas:
+//	dejando en blanco el title -> volverá al formulario original. 
+// 	rellenar con solo 2 caracteres en el title -> volverá al formulario original. 
+///	rellenar con un title repetido -> volverá al formulario original. 
+// Si no pasa alguna validación aplica un return a la página anterior de manera automática 
+
+// Todavía no hemos guardado los datos del formulario en la DDBB, solamente hemos recibido y validado
+// 	para guardarlo será similar a los 'seeders', lo veremos un poco más adelante. 
+
+
+// El Controller pude llegar a ser muy complejo; 
+// 	es donde aplicaremos la lógica de negocio (validaciones, comprobaciones, filtros, etc.)
+// Observar que en app>Http>Controllers>PostControllerCRUD.php tenemos una única validación (de 'title')
+// Si quisiéramos aplicar validaciones a todos los campos de un formulario, puede ser un Controller complejo
+// Además de almacenar el registro, si todo tiene que hacerse en la función postCRUD.store(), puede llegar a ser inmantenible. 
+// Es mejor aplicar una división de responsabilidades (DANDC) para los Controllers. 
+// La validación de datos de entrada de formularios es un operación muy común, y altamente recomendable, en aplicaciones Web
+// 	por ello, Laravel permite validar los datos de entrada de los formularios de manera centralizada y reutilizable por múltiples Controllers
+
+php artisan make:request GuardarPostRequest // Crea un request en app>Http>Requests (crea la carpeta Requests)
+php artisan make:request GuardarCategoryRequest  
+
+// Modificar el GuardarPostRequest recién creado de la siguiente manera: 
+// 	Observar las validaciones de 'title' que hemos hecho antes, ponemos las mismas del PostControllerCRUD de store()
+//	Como hemos puesto las mismas, las podemos elminar del postCRUD.store() //Comentarlas, no eliminarlas, para tener un ejemplo. 
+
+// Hasta el momento no tenemos Registro ni Login de Usuarios, por tanto:
+public function authorize(): bool
+{
+    return true; // Permitimos a cualquier usuario el formulario (pero sigue necesitando token de sesión) 
+}
+
+// Añadimos la validación del title. 
+public function rules(): array
+    {
+    return [
+        'title' => 'required|unique:posts|min:5|max:255',
+    ];
+}
+
+// Ahora hay que decir al store() del PostControllerCRUD que queremos usar el GuardarPostRequest recién creado
+// Cambiar la función store() por 'public function store(GuardarPostRequest $request)' y eliminar o comentar las validaciones
+// 	así, le decimos al store() que para ser válido se haga una validación de GuardarPostRequest
+
+use App\Http\Requests\GuardarPostRequest; 
+
+    public function store(GuardarPostRequest $request)
+    {
+        // dd($request); // Desgrana el $request y lo pinta en pantalla
+        echo "estoy en function store() de PostControllerCRUD"; 
+
+        echo 'Title'.$request->input('title').'<br>';
+        echo 'Title'.$request->title.'<br>';
+        echo 'Title'.request('title'); 
+
+        // Validación de los input del formulario
+        // Se lleva a cabo en GuardarPostRequest
+        //$request->validate([
+        //     'title' => 'required|unique:posts|min:5|max:255',
+        // ]); 
+    }
+
+// Probarlo otra vez todo, tal que las validaciones se apliquen 
+http://<example-app.test>/postCRUD/create
+
+
+// Nos falta depurar la respuesta para verlo un poco mejor. 
+// Vamos a mejorar la pantalla de error 
+// Laravel nos devuelve una variable $errors con los errores
+
+// Editar el resources>views>post>create.blade.php y añadir código como se muestra a continuación
+
+    @if (count($errors->all()) === 1)
+        'Mensaje de error'
+    @elseif (count($errors->all()) > 1)
+        'Mensaje de error'
+    @else
+        'Mensaje NO error'
+    @endif
+
+// También podríamos añadir @dd($errors) para ver el contenido de la estructura de $errors
+// Se añade al final del todo, cómo última línea, en caso contrario corta la pantalla 
+
+// El create.blade.php quedaría de la siguiente manera:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+</head>
+<body>
+
+    <!-- Primero comprobamos si esta pantalla es llamada por consecuencia de un error-->
+    @if (count($errors->all()) === 1)
+        <h2>Tenim 1 error</h2>
+    @elseif (count($errors->all()) > 1)
+        <h2>Tenim multiples errors</h2>
+    @else
+        <h2>No tenim cap error</h2> 
+    @endif
+
+     <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
+    <h3>Create Post</h3>
+    <form action="{{ route('postCRUD.store') }}" method="post">
+        @csrf <!-- Security Token -->	
+        <label for="title">Títol</label>
+        <input type="text" name="title" />
+        <label for="url_clean">Url neta</label>
+        <input type="text" name="url_clean" />
+        <label for="content">Contingut</label>
+        <textarea name="content" col="3" ></textarea>
+        <input type="submit" value="Crear" >
+    </form>
+
+    <!-- para ver el contenido de $errors, toda la info en pantalla -->
+    @dd($errors)
+    
+</body>
+</html>
+
+// Ejecutar otra vez para comprobar la gestión de los errores, con y sin errores
+// Recordar que la primera llamada debería mostrar el formulario sin errores
+http://<example-app.test>/postCRUD/create
+
+
+// Vamos a refinar un poco más todo esto, y mostrar los errores de una manera más formal y correcta. 
+// En la View borrar el código de control de error que hemos añadido 
+//	y que nos queden el código solamente el <form> </form> original
+// Añadir siguiente código antes del <form>
+
+ @if ($errors->any())
+      <div class="alert alert-danger">
+          <ul>
+              @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
+              @endforeach
+          </ul>
+      </div>
+  @endif
+
+// Ahora la View nos queda de la siguiente manera (está codificada para depuración) 
+
+<body>
+
+    <!-- Primero comprobamos si esta pantalla es llamada por consecuencia de un error-->
+    @if (count($errors->all()) === 1)
+        <h2>Tenim 1 error</h2>
+    @elseif (count($errors->all()) > 1)
+        <h2>Tenim multiples errors</h2>
+    @else
+        <h2>No tenim cap error</h2> 
+    @endif
+
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
+    <h3>Create Post</h3>
+    <form action="{{ route('postCRUD.store') }}" method="post">
+        @csrf <!-- Security Token -->	
+	...
+    </form>
+
+    <!-- para ver el contenido de $errors, toda la info en pantalla -->
+    @dd($errors)
+
+</body>
+
+
+// Ejecutar otra vez con errores para probar que nos muestra los mensajes según las validaciones que aplicamos
+http://<example-app.test>/postCRUD/create
+ 
+// Veamos cómo modificar el texto que aparece:
+// Existe un método, que es opcional y no creado inicialmente, 
+//	para definir nuestros mensajes: public function messages() {}
+// Este método estará justo después de las validaciones de 'public function rules(): array {}' 
+// Aprovechamos y acabamos de añadir las rules GuardarPostRequest.php 
+// El código de app>Http>Request>GuardarPostRequest queda así:  
+
+    public function rules(): array {
+        return [
+            'title' => 'required|unique:posts|min:5|max:255',
+            'url_clean' => 'required|unique:posts|min:5|max:255',
+            'content' => 'required|min:5|max:255',
+        ];
+    }
+
+    public function messages() {
+        return [
+            'title.required' => 'El título debe estar informado',
+            'title.unique' => 'El título ya existe, no se puede duplicar',
+            'title.min' => 'Título mínimo son 5 carateres',
+            'title.max' => 'Título máximo son 255 caracters',
+            'url_clean.required' => 'La url debe estar informada',
+            'url_clean.unique' => 'La url ya existe, no se puede duplicar',
+            'url_clean.min' => 'La url mínimo son 5 carateres',
+            'url_clean.max' => 'La url máximo son 255 caracters',
+            'content.required' => 'El content debe estar informada',
+            'content.min' => 'El content mínimo son 5 carateres',
+            'content.max' => 'El content máximo son 255 caracters',
+        ]; 
+    }
+
+// Probarlo otra vez con estas nuevas modificaciones
+// Ahora, los mensajes serán los nuestros. 
+http://<example-app.test>/postCRUD/create
+
+// Lo mejoramos más todavía
+// Podemos crear nuestras propias reglas de validación mediante el uso de artisan 
+// Las reglas propias las deposita en app>Rules (esta carpeta no existe hasta el momento)
+
+// Creamos una regla propia con artisan
+php artisan make:rule Uppercase
+
+// Revisar la carpeta app>Rules>Uppercase.php recién creada por el artisan
+// Incluimos el siguiente código : 
+
+    public function validate(string $attribute, mixed $value, Closure $fail): void
+    {
+        // Validamos string para que sea en mayúsculas
+        if (strtoupper($value) !== $value) {
+            $fail(':attribute debe estar informado en mayúsculas');
+        }
+    }
+
+// Ahora vamos al GuardarPostRequest.php y lo modificamos para usar la nueva validación personal
+// No olvidar el import use App\Rules\Uppercase;
+
+    public function rules(): array {
+        return [
+            'title' => ['required','unique:posts','min:5','max:255', new Uppercase],
+            'url_clean' => 'required|unique:posts|min:5|max:255',
+            'content' => 'required|min:5|max:255',
+        ];
+    }
+
+// Ejecutarlo para probar esta rule propia
+http://<example-app.test>/postCRUD/create
+
+
+// Otra manera de mostrar los errores es como sigue, modificando la View
+// resources>views>post>create.blade.php y modificamos el código HTML incrustando mensajes de error
+// Modificarlo de la siguiente manera: 
+
+<input type="text" style="@error('title') border-color:RED; @enderror" name="title" />
+
+// Probarlo
+http://<example-app.test>/postCRUD/create
+
+
+// Otra manera sería, también en el código html de la View del create.blade.php
+// Incrustar un condicional de @error ... @enderror, modificar el código como sigue:
+
+    <form action="{{ route('postCRUD.store') }}" method="post">
+        @csrf <!-- Security Token -->	
+        
+        <label for="title">Títol</label>
+        <!-- <input type="text" name="title" /> -->
+        <input type="text" style="@error('title') border-color:RED; @enderror" name="title" />
+        @error('title')
+            <div>{{$message}}</div>
+        @enderror     
+
+        <label for="url_clean">Url neta</label>
+        <input type="text" style="@error('url_clean') border-color:RED; @enderror" name="url_clean" />
+        @error('url_clean')
+            <div>{{$message}}</div>
+        @enderror
+        
+        <label for="content">Contingut</label>
+        <textarea style="@error('content') border-color:RED; @enderror" name="content" col="3" ></textarea>
+        @error('content')
+            <div>{{$message}}</div>
+        @enderror
+
+        <input type="submit" value="Crear" >
+    </form>
+
+// Probarlo
+http://<example-app.test>/postCRUD/create
+
+// Una vez se han superado las validaciones hay que guardarlo en la DDBB
+// Será como la sintaxis de un 'seeder' dentro de la funcion store() del app>Http>Controllers>PostControllerCRUD.php
+// 	comentar el  dd($request) y después del save() añadir un return back();
+
+use App\Models\Post;
+use App\Models\User;
+use App\Models\Category;
+use Illuminate\Http\Request;
+use App\Http\Requests\GuardarPostRequest;
+
+    public function store(GuardarPostRequest $request)
+    {
+
+        // Si las validaciones son OK, entonces se debe proceder al insert en la DDBB
+        $post = new Post; 
+
+        $post->title = $request->title;
+        $post->url_clean = $request->url_clean;  
+        $post->content = $request->content; 
+        $post->posted = 'not'; // Por defecto las publicaciones no están posteadas, requiren de supervisión
+        $post->user_id = User::all()->random()->id; // Para que la FK user_id funcione, elegimos al azar
+        $post->category_id = Category::all()->random()->id; // Para que la FK category_id funcione, elegimos al azar
+
+        $post->save(); 
+
+        return back(); // Vuelve a la página anterior 
+
+    }
+
+
+// Comprobarlo creado registros
+// Comprobar la DDBB, actualizar y observamos los nuevos registros con created_at, updated_at y un user_id y un category_id aleatorios
+
+// Crear algunas publicaciones para probarlo todo otra vez. 
+// Repetir todo con Category y Tags. 
+// FIN DEL TEMA 
