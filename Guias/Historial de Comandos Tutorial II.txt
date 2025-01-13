@@ -584,10 +584,6 @@ http://blog-app.test/categoryCRUD/create // Y debería cargar el formulario de c
 	POST            postCRUD .............................................. postCRUD.store › PostControllerCRUD@store
 	POST            categoryCRUD .......................................... categoryCRUD.store › CategoryControllerCRUD@store
 
-
-*********************   AQUI, AQUI, AQUI, 
-
-
 // Y saltará al método store(Request $request) del PostControllerCRUD
 
 // Para probarlo en el store(Request $request) del PostControllerCRUD poner el siguiente código 
@@ -599,12 +595,14 @@ public function store(Request $request)
 // Arrancarlo 
 http://<example-app.test>/postCRUD/create // Y rellenar formulario y pulsar botón create
 http://<blog-app.test>/categoryCRUD/create
+
+// Obtenemos el siguiente error
 419 Page Expired
 
 // Y el POST no es válido: 419 Page Expired
 // No es válido porque si lo fuera, se podría hacer este POST desde cualquier formulario con esta llamada 
 // Laravel, aplica seguridad; para que funcione hay que incluir el token de seguridad (al igual que en llamadas API) 
-// Añadir el token de seguridad (@csrf) en la View create.blade.php
+// Añadir el token de seguridad (@csrf) en la View create.blade.php (de post y de category)
 <form action="{{ route('postCRUD.store') }}" method="post">
         @csrf <!-- Security Token -->	
     	<label for="title">Títol</label>
@@ -631,19 +629,22 @@ http://<blog-app.test>/categoryCRUD/create
 
 // Aprovechamos para introducir la función dd()
 // 	que desgrana el $request y lo pinta en pantalla
-// Es una buena técnica para depurar, es un volcado raw en pantalla del $request
+// Es una buena técnica para depurar, es un volcado 'raw' en pantalla del $request
+// Recorder que el dd($request) aborta la ejecución. 
 
     public function store(Request $request)
     {
-        dd($request); // Desgrana el $request y lo pinta en pantalla
+
         echo "estoy en function store() de PostControllerCRUD"; 
 
         echo 'Title'.$request->input('title').'<br>';
         echo 'Title'.$request->title.'<br>';
         echo 'Title'.request('title'); 
+
+        dd($request); // Desgrana el $request y lo pinta en pantalla
     }
 
-// Desglosar el request el request / parameters que contiene los parámetros recibidos. 
+// Desglosar el request:  El request/parameters contiene los parámetros recibidos. 
   +request: Symfony\Component\HttpFoundation\InputBag {#42 ▼
     #parameters: array:4 [▼
       "_token" => "FwT2tZwnwoYEpiA5O7UoiZpw31X8H3vrBzZI7lG5"
@@ -653,23 +654,24 @@ http://<blog-app.test>/categoryCRUD/create
     ]
 
 // Obviamente, en el Controller, hay que recuperar la información del formulario, 
-//	posiblemente tratarla, y guardarla en la DDBB
-// Recordar que hemos llamado a la Route http://<blog-app.test>/postCRUD/create (postCRUD.create del Controller) para generar el formulario mediante la View (create.blade.php)
-//	y que el formulario llamará a http://<blog-app.test>/postCRUD (postCRUD.store del Controller) para guardar los datos en la DDBB
+//	    posiblemente tratarla, y guardarla en la DDBB
+// Recordar que hemos llamado a la Route http://<blog-app.test>/postCRUD/create (postCRUD.create del Controller) para 
+//      generar el formulario mediante la View (create.blade.php)
+//	    y que el formulario llamará a http://<blog-app.test>/postCRUD (postCRUD.store del Controller) para guardar los datos en la DDBB
 // Sería bueno hacer un dibujo de este diálogo para acabar de entenderlo. 
 
 
 // Refinamos la recepción de datos en postCRUD.store() para poder filtrar los datos recibidos
 // Es muy recomendable aplicar un 'control' sobre los datos (aún habiéndolos en el front) en la recepción de los mismos
-// En un desarrollo con Front, Back, Api, DDBB, a veces, no es el mismo equipo en cada capa
-//	por tanto, es recomendable llevar a cabo controles en cada capa. 
-//	además, no hemos aplicado ningún control en el formulario con HTML + JavaScript
-// Ahora el Controller se convierte en un elemento valioso en la arquitectura MVC
+// En un desarrollo con Front, Back, Api, DDBB, a veces, no es el mismo equipo el que se ocupad de cada capa
+//      por tanto, es recomendable llevar a cabo controles propios en cada capa. 
+//	    además, no hemos aplicado ningún control en el formulario con HTML + JavaScript
+// Ahora sí que el Controller se convierte en un elemento valioso en la arquitectura MVC
+//      un elemento que comienza a tener su significado y justifica su presencia. 
 // Usaremos el validate sobre el $request y aplicarlo a cualquier columna
 
-
 // Ahora validamos los datos del formulario en la recepción de los mismos
-// Dejar el siguiente código, y comentar todo lo anterior (o ponerlo después de la validación), en postCRUD.store()
+// Dejar solamente el siguiente código (y comentar todo lo anterior para tenerlo de ejemplo) en postCRUD.store()
 
         // Validación de los input del formulario
         $request->validate([
@@ -681,23 +683,24 @@ http://<blog-app.test>/categoryCRUD/create
 // min:5|max:255 ; Tamaño máximo y mínimo 
 
 // Hacer pruebas:
-//	dejando en blanco el title -> volverá al formulario original. 
-// 	rellenar con solo 2 caracteres en el title -> volverá al formulario original. 
-///	rellenar con un title repetido -> volverá al formulario original. 
+//      dejando en blanco el title -> volverá al formulario original. 
+//      rellenar con solo 2 caracteres en el title -> volverá al formulario original. 
+//      rellenar con un title repetido -> volverá al formulario original. 
 // Si no pasa alguna validación aplica un return a la página anterior de manera automática 
 
 // Todavía no hemos guardado los datos del formulario en la DDBB, solamente hemos recibido y validado
-// 	para guardarlo será similar a los 'seeders', lo veremos un poco más adelante. 
+//      para guardarlo será similar a los 'seeders', lo veremos un poco más adelante. 
 
+***** Límite de revisión 
 
 // El Controller pude llegar a ser muy complejo; 
-// 	es donde aplicaremos la lógica de negocio (validaciones, comprobaciones, filtros, etc.)
+//      es donde aplicaremos la lógica de negocio (validaciones, comprobaciones, filtros, etc.)
 // Observar que en app>Http>Controllers>PostControllerCRUD.php tenemos una única validación (de 'title')
 // Si quisiéramos aplicar validaciones a todos los campos de un formulario, puede ser un Controller complejo
 // Además de almacenar el registro, si todo tiene que hacerse en la función postCRUD.store(), puede llegar a ser inmantenible. 
 // Es mejor aplicar una división de responsabilidades (DANDC) para los Controllers. 
 // La validación de datos de entrada de formularios es un operación muy común, y altamente recomendable, en aplicaciones Web
-// 	por ello, Laravel permite validar los datos de entrada de los formularios de manera centralizada y reutilizable por múltiples Controllers
+//      por ello, Laravel permite validar los datos de entrada de los formularios de manera centralizada y reutilizable por múltiples Controllers
 
 php artisan make:request GuardarPostRequest // Crea un request en app>Http>Requests (crea la carpeta Requests)
 php artisan make:request GuardarCategoryRequest  

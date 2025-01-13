@@ -27,7 +27,20 @@ class PostControllerCRUD extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+       //  echo "estoy en function store() de PostControllerCrud"; 
+
+       //  echo 'Title'.$request->input('title').'<br>';
+       //  echo 'Title'.$request->title.'<br>';
+       //  echo 'Title'.request('title'); 
+
+       // dd($request); // Desgrana el $request y lo pinta en pantalla
+
+        // Validación de los input del formulario
+        $request->validate([
+            'title' => 'required|unique:posts|min:5|max:255',
+        ]);
+
     }
 
     /**

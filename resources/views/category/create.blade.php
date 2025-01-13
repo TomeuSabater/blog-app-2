@@ -6,8 +6,10 @@
     <title>Create Category</title>
 </head>
 <body>
-    <h3>Create Post</h3>
+    <h3>Create Category</h3>
     <form action="{{ route('categoryCRUD.store') }}" method="post">
+
+        @csrf <!-- Security Token -->	
 
         <label for="title">Títol</label>
         <input type="text" name="title" />
