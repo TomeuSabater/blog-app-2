@@ -10,7 +10,7 @@
     <form action="{{ route('postCRUD.store') }}" method="post">
 
         @csrf <!-- Security Token -->	
-
+        
         <label for="title">Títol</label>
         <input type="text" name="title" />
     

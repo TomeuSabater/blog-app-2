@@ -163,7 +163,6 @@ Route::get('/holar/{nom}',function($nom) {
 
 http://<blog-app>.test/holar/tomeu2
 
-
 // Con restricciones podemos poner plantillas o patterns
 // 	las plantilla se crea en app>Providers>AppServiceProvider.php y lo aplica POR TODO
 
@@ -292,7 +291,7 @@ http://<example-app.test>/redireccion
 ////	por lo que el acceso a la DDBB nunca será directo, será siempre mediante un Model
 
 // Ejemplo de extracción de info de la tabla Users mediante su ID 
-// 	si hemos respetado los estándares de Laravel, el ID es la PK de la tabla
+//      si hemos respetado los estándares de Laravel, el ID es la PK de la tabla
 // User es un Model ya definido en app>Models>User.php
 // Recordar que el nombre de la variable debe ser el mismo en los 3 lugares
 // Recordar hacer el import en web.php (use App\Models\User;)
@@ -333,7 +332,8 @@ http://<blog-app.test>/posts2/2
 //// 	donde ya tenemos algunos ejemplos que se crean por defecto
 //// El nombre de una View es nombreview.blade.php
 //// También se le pueden pasar parámetros a una View
-//// Las View necesitan de una Route, es la manera de acceder a la View, NO se puede acceder directamente 
+//// Las View necesitan de una Route, es la manera de acceder a la View, 
+//// NO se puede acceder directamente 
 
 /// Recordar que Laravel trabaja bajo el paradigma MVC, y no es lo más correcto lo que hemos hecho en los ejemplos
 // 	que es extraer información de la DDBB atacando directamente los Model 
@@ -439,7 +439,8 @@ http://<blog-app.test>/perfilusuari/1
 
 ///////////////////// MVC
 
-// Vamos a redondear lo anterior añadiendo un Controller para acabar teniendo el verdadero paradigma MVC
+// Vamos a redondear lo anterior añadiendo un Controller para acabar teniendo 
+// el verdadero paradigma MVC
 
 //// Controladores en app>Http>Controllers
 //// Contendrán la lógica que negocio, será lo que usemos para la lógica del proyecto
@@ -608,6 +609,9 @@ http://<blog-app.test>/categoryCRUD/create
     	<label for="title">Títol</label>
 	...
 </form>
+
+***** HASTA AQUI 13 - ENERO - 2025
+
 
 // Recargar página http://<example-app>.test/postCRUD/create y mirar código fuente, 
 // 	habrá añadido algo similar a lo siguiente:
