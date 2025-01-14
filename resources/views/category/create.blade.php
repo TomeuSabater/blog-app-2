@@ -7,6 +7,17 @@
 </head>
 <body>
     <h3>Create Category</h3>
+
+    <!-- Primero comprobamos si esta pantalla es llamada por consecuencia de un error-->
+    @if (count($errors->all()) === 1)
+        <h2>Tenim 1 error</h2>
+    @elseif (count($errors->all()) > 1)
+        <h2>Tenim multiples errors</h2>
+    @else
+        <h2>No tenim cap error</h2> 
+    @endif
+
+     <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
     <form action="{{ route('categoryCRUD.store') }}" method="post">
 
         @csrf <!-- Security Token -->	

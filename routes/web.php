@@ -24,16 +24,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
-
-
 /////////////////////  Routes simples
 
 Route::get('/hola',function() {
 
     return '<h1>Hola Mundo Cruel</h1>';
 }); 
-
 
 Route::get('/index.html',function() {
 
@@ -50,16 +46,12 @@ Route::get('/index.html',function() {
     return $html_code;
 }); 
 
-
-
 ///////////////////// Routes con parámetros
 
 Route::get('/hola/{nom}',function($nom) {
 
     return '<h1>Hola '.$nom.' estás en un Mundo Cruel</h1>';
 })->name('holanom'); // Alias que vermos después 
-
-
 
 Route::get('/hola2/{nom}',function($nom) {
 
@@ -76,16 +68,12 @@ Route::get('/hola2/{nom}',function($nom) {
     return $html_code;
 }); 
 
-
-
 ///////////////////// Routes con parámetros condicionados
 
 Route::get('/hola3/{nom}/{professio?}',function($nom, $professio = 'profe') {
 
 	return '<h1>Hola '.$nom.' que eres '.$professio.' estás en un Mundo Cruel</h1>';
 })->name('nomprof'); // Tiene un alias
-
-
 
 ///////////////////// Routes con restricciones
 
@@ -100,9 +88,6 @@ Route::get('/perfil/{id}',function($id) {
 
     return '<h3>Perfil Nº'.$id.'</h3>'; 
 }); 
-
-
-
 
 ///////////////////// Routes renombradas 
 
@@ -120,8 +105,6 @@ Route::get('/perfilr2/{id}',function($id) {
     return "<h3>Perfil Nº ".$id."<a href='".route('salutacio')."'>saluda a </a></h3>"; 
 }); 
 
-
-
 Route::get('/lñajalkjasljkasflkjasfd',function() {
     return '<h1>Hola de nuevo, ruta rara es lñajalkjasljkasflkjasfd</h1>';
 })->name('rutarara'); 
@@ -131,7 +114,6 @@ Route::get('/perfilr3/{id}',function($id) {
     return "<h3>Perfil Nº".$id."<a href='".route('rutarara')."'>saluda</a></h3>"; 
 });
 
-
 ///////////////////// Routes renombradas y uso de parámetros
 
 Route::get('/perfilr4/{id}',function($id) {
@@ -139,14 +121,10 @@ Route::get('/perfilr4/{id}',function($id) {
     return "<h3>Perfil Nº".$id."<a href='".route('holanom',['nom'=>'Tommy'])."'>saluda</a></h3>"; 
 }); 
 
-
-
 Route::get('/perfilr5/{id}',function($id) {
 
     return "<h3>Perfil Nº".$id."<a href='".route('nomprof',['nom'=>'Tommy', 'professio'=>'Docent'])."'>saluda</a></h3>"; 
 });
-
-
 
 ///////////////////// Agrupación de Routes para condiciones determinadas
 
@@ -168,65 +146,45 @@ Route::get('/redireccion',function() {
     return "<h3>Perfil Nº <a href='".route('saluda',['nom'=>'Tommy'])."'>saluda</a></h3>"; 
 }); 
 
-
-
-
-
 ///////////////////// Routes enlazadas con Models (app>Models)
-
 
 Route::get('/usuaris/{usuari}', function(User $usuari){
     return $usuari; 
 }); 
 
-
 Route::get('/posts/{post}', function(Post $post){
     return $post; 
 }); 
-
 
 // Otro ejemplo con el Model Category 
 Route::get('/categories/{category}', function(Category $category){
     return $category; 
 }); 
 
-
 Route::get('/posts2/{post:user_id}', function(Post $post){
     return $post; 
 }); 
 
-
-
-
 ///////////////////// Routes que cargan View 
-
 
 Route::get('/perfilview/{nom}', function($nom) {
     return view('perfil', ['nom'=>$nom]); // pasamos un parámetro a la View
 }); 
 
-
-
-
 Route::get('/perfilusuari/{usuari}', function(User $usuari) {
     return view('perfiluser',['user'=>$usuari]); // pasamos un Modelo a la View
 }); 
-
-
-
-
 
 ///////////////////// MVC
 
 Route::get('/posts', [PostController::class, 'index']); // Ejecución del método index() del PostController
 
-///////////////////// CRUDs
+///////////////////// MVC CRUDs
 
 //// CRUD Post
 Route::resource('/postCRUD', PostControllerCRUD::class); // Genera todas la Route para el Controller de Post
 
 //// CRUD Category 
 Route::resource('/categoryCRUD', CategoryControllerCRUD::class); // Genera todas la Route para el Controller de Category
-
 
 require __DIR__.'/auth.php';

@@ -28,7 +28,7 @@ class CategoryControllerCRUD extends Controller
     public function store(Request $request)
     {
 
-        // echo "estoy en function store() de CategoryControllerCrud"; 
+        echo "estoy en function store() de CategoryControllerCrud"; 
 
         // echo 'Title'.$request->input('title').'<br>';
         // echo 'Title'.$request->title.'<br>';
@@ -36,9 +36,9 @@ class CategoryControllerCRUD extends Controller
 
         // dd($request); // Desgrana el $request y lo pinta en pantalla
 
-        $request->validate([
-             'title' => 'required|unique:categories|min:5|max:255',
-        ]);
+        // $request->validate([
+        //     'title' => 'required|unique:categories|min:5|max:255',
+        // ]);
     }
 
     /**
