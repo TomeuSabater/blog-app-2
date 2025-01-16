@@ -522,9 +522,6 @@ http://<example-app.test>/postCRUD/2/edit
 http://<example-app.test>/postCRUD/50/edit // Genera un 404
 
 
-
-
-
 ********************* update()
 
 // Ahora cambiamos el update() del PostControllerCRUD que será llamado desde el edit() 
@@ -559,8 +556,6 @@ http://<blog-app.test>/postCRUD/6/edit
 http://<example-app.test>/postCRUD/4/edit // aquí poner title en blanco 
 http://<example-app.test>/postCRUD/4 // aquí se edita y se comprueba contenido 
  
-************** límite de revisión 
-
 // Deberíamos aplicar controles, al estilo que los aplicamos en el create() 
 // Recordar que tenemos el app\Http\Requests\GuardarPostRequest.php que nos filtraba los input
 // 	   no podemos reutilizarlo tal cual (hay un control para titulo y url únicos) y en update 
@@ -713,10 +708,60 @@ DELETE   postCRUD/{postCRUD} ......................postCRUD.destroy › PostCont
 // Eliminar algunos y comprobarlo en la DDBB que se ha borrado físicamente. 
 
 // Ejercicio: Aplicar la misma idea para el edit()
+// Sería aplicar la misma idea que en index() con botón para Route que llame a show()
+// Modificamos la View post.index para añadir un botón
+// Recordar la Route que deberemos asociar a cada botón
+php artisan route:list 
+ GET|HEAD        postCRUD/{postCRUD} .............................. postCRUD.show › PostControllerCRUD@sho
+
+// La View index.blade.php quedaría de la siguiente manera
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index Posts</title>
+</head>
+<body>
+
+    <h3>Index Post</h3>
+
+    <table border='1'>
+        @foreach ($posts as $post)
+            <tr>
+                <td>{{ $post->id }}</td>
+                <td>{{ $post->title }}</td>
+                <td>{{ $post->posted }}</td>
+                <td>{{ $post->content }}</td>
+                <td>{{ $post->created_at }}</td>
+                <td>{{ $post->updated_at }}</td>
+                <td>
+                    <form action="{{route('postCRUD.destroy', ['postCRUD' => $post->id ])}}" method="POST">
+                      @method('DELETE')
+                      @csrf
+                      <button type="submit" class="btn tbn-danger btn-sm">Delete</button>
+                    </form> 
+                </td> 
+                <td>
+                    <form action="{{route('postCRUD.show', ['postCRUD' => $post->id ])}}" method="GET">
+                      @method('GET')
+                      @csrf
+                      <button type="submit" class="btn tbn-danger btn-sm">Show</button>
+                    </form> 
+                </td> 
+            </tr>
+        @endforeach
+    </table>
+
+</body>
+</html>
+
 
 // Ya tenemos una Web que aplica un CRUD que funciona, aunque es muy sencillo y con un diseño muy básico 
 // Este tema ha servido para explicar conceptos básicos para confeccionar un CRUD
-// Hay que aplicar un diseño más avanzado, se verá en los próximos temas
+// Hay que aplicar un diseño más avanzado, y que el Tailwindcss tenga efecto, se verá en los próximos temas
 
-// Repetir todo con Category y Tags. 
-// FIN DEL TEMA 
+// Ejercicio: Repetir todo con Category y Tags. 
+
+/////// FIN DEL TEMA 

@@ -19,13 +19,23 @@
                 <td>{{ $post->content }}</td>
                 <td>{{ $post->created_at }}</td>
                 <td>{{ $post->updated_at }}</td>
-              <!--  <td>
+            <!--
+                <td>
                     <form action="{{route('postCRUD.destroy', ['postCRUD' => $post->id ])}}" method="POST">
                       @method('DELETE')
                       @csrf
                       <button type="submit" class="btn tbn-danger btn-sm">Delete</button>
                     </form> 
-                </td> --> 
+                </td> 
+
+                <td>
+                    <form action="{{route('postCRUD.show', ['postCRUD' => $post->id ])}}" method="GET">
+                      @method('GET')
+                      @csrf
+                      <button type="submit" class="btn tbn-danger btn-sm">Show</button>
+                    </form> 
+                </td> 
+            -->
             </tr>
         @endforeach
     </table>
