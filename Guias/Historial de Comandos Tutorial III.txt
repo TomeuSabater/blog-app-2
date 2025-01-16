@@ -30,16 +30,17 @@ php artisan route:list
 //      pero no hace más que ofrecer una ruta válida. 
 
 // En routes>web.php cualquier Route, aunque no codifiqemos nada, será un ruta válida, aunque esté en blanco
-// En routes>web.php de cualquier Route podemos añadir todo el HTML que necesitemos y customizar la respuesta
+// En routes>web.php en cualquier Route podemos añadir todo el HTML que necesitemos y customizar la respuesta
 //      pero es mejor dejarlas en blanco y asociarlas con una View, o un Controller aplicando el paradigma MVC
 // Una Route puede llamar a una View (resources>views) para mostrar HTML plano.
 // Una Route puede llamar a un método de un Controller (app>Http>Controllers) para lógica (reglas de negocio, gestió de la información, etc.)
 
 // En el paradigma MVC una Route llama a un método de un Controller que utilizará un Model para gestionar una información 
-//      mostrando el resultado al usuario mendiaten una View 
+//      mostrando el resultado al usuario mendiaten una View :
+//      Usuario -> Route(parametros) -> Controller(f() / Model) -> View(Model') -> Usuario 
 
 // Recordar del tema anterior routes>web.php la Route::resource('/postCRUD', PostControllerCRUD::class); 
-//      esta Route generaba automáticamente todas la Route hacia un Controller con métodos pensados para para CRUD
+//      esta Route generaba automáticamente todas las Route hacia un Controller con métodos pensados para para CRUD
 
 // Recordar también del tema anterior que podemos implementar Rules (app>Rules) a nuestra conveniencia
 // 	ejemplo: app>Rules>Uppercase.php que se usa desde app>Http>Requests>GuardarPostRequest.php
@@ -48,12 +49,12 @@ php artisan route:list
 //      ante varios errores del mismo campo, solamente muestra el primero según se hayan definido las validaciones
 
 
-////// Veamos diferentes maneras de comunicación con la DDBB (Recordatorio o Refresco de conocimiento)
+////// Veamos diferentes maneras de comunicación con la DDBB (Recordatorio o Refresco de conocimientos)
 
-// Laravel permite;  SQL sin procesar, un generador de consultas Query Builder, y el ORM (Object Relational Mapper) de Eloquent
-// Se recomendado el ORM de Eloquent si el proyecto no es muy grande y complejo (por ejemplo un CRUD), y si los SQL son los 'normales'
-// En caso de necesitar un SQL 'complejo' con muchas 'join' que requiera de optimización, es mejor aplicar Query Builder 
-// Se desaconseja el SQL directo si procesar, porque no se aprovechan las facilidades ni de Query Builder ni de Eloquent
+// Laravel permite;  SQL sin procesar, un generador de consultas llamado Query Builder, y el ORM (Object Relational Mapper) de Eloquent
+// Se recomienda el ORM de Eloquent si el proyecto no es muy grande y complejo (por ejemplo un CRUD), y si los SQL son los 'normales'
+// En caso de necesitar un SQL 'complejo', por ejemplo con muchas 'join' que requiera de optimización, es mejor aplicar Query Builder 
+// Se desaconseja el SQL directo sin procesar, porque no se aprovechan las facilidades ni del Query Builder ni de Eloquent
 //      y además, se accede a la DDBB directamente, saltándote los Model donde pudiera haber lógica y restricciones. 
 
 
@@ -63,7 +64,7 @@ php artisan route:list
 // Probamos algunas sentencias en el app>Http>Controllers>PostControllerCRUD.php en la function create(); 
 // Quedaría así:
 
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB; // No olvidar este import
 public function create()
 {
     $user = DB::select('select * from users');
@@ -76,7 +77,9 @@ public function create()
 http://<example-app.test>/postCRUD/create
 
 // Se observa que podemos lanzar SQL directamente
+//      y que no aplica ninguna restricción de los Model
 // Otro ejemplo con clausula 'where'
+
 public function create()
 {
         // $user = DB::select('select * from users');
@@ -87,14 +90,14 @@ public function create()
 }
 
 // Se pueden hacer insert / update / delete, etc. Cualquier sentencia que necesitemos
-// Se desaconseja el uso del SQL Directo en Laravel. 
+// No obstante, se desaconseja el uso del SQL Directo en Laravel. 
 
 
 ******************* Ejemplos de QUERY BUILDER
 
 // Otra manera de ejecutar SQL es mediante el QUERY BUILDER (constructor de queries) 
 // Veamos ejemplos en el mismo fichero PostControllerCRUD.php con Query Builder
-// No devuelve un array como SQL Directo, ahora devuelve una collection que tiene otras propiedades interesantes. 
+// No devuelve un array como SQL Directo, ahora devuelve una collection que tiene propiedades interesantes. 
 
 public function create()
 {
@@ -105,7 +108,7 @@ public function create()
 
         // Ejemplos con el QUERY BUILDER 
         // $user = DB::table('users')->where('role','admin')->get(); // Ejemplo con where x = y
-        // $user = DB::table('users')->where('role','!=','admin')->get(); // Ejemplo con where x = y
+        // $user = DB::table('users')->where('role','!=','admin')->get(); // Ejemplo con where x != y
 
         // dd($user); // Muestra el resultado del select anterior 
 
@@ -119,7 +122,8 @@ public function create()
 ******************* Ejemplos con ELOQUENT
 
 // Veamos ELOQUENT, que es el recomendado mientras el SQL no sea muy complejo
-// Utiliza los Model que hemos creado en app>Models para mapear las entidades (tablas) y facilita la generación de consultas
+// Una gran ventaja es que utiliza los Model que hemos creado en app>Models para mapear las entidades (tablas)
+//      esto significa que respetará las restricciones, mapeos, etc. que tuviéramos en los Model
 // Los Model de app>Models representan cada una de la tablas físicas de la DDBB y sus relaciones 
 // Se aplican las instrucciones Insert, Update, Delete en las tablas a través los Model
 // No siempre es mejor Eloquent o Query Builder, depende del caso, y puede haber mezcla sin problemas. 
@@ -184,14 +188,13 @@ class Category extends Model
 ************************** Ejemplos ELOQUENT
 
 // Veamos ahora cómo usamos ELOQUENT
-// Por defecto genera una serie de métodos útiles
-// Para las pruebas usaremos el método index() de app>Http>Controllers>PostControllerCRUD.php 
+// Para los ejemplos, usaremos el método index() de app>Http>Controllers>PostControllerCRUD.php 
 
 public function index()
 {
-    $post = Post::all(); // Donde Post es la class de la tabla posts all() es obtener todos los registros
+    $posts = Post::all(); // Donde Post es la class de la tabla posts all() es obtener todos los registros
 
-    dd($post); // volcado del resultado 
+    dd($posts); // volcado del resultado 
 }
 
 // Arrancarlo recordando las Routes obtenidas con php artisan route:list
@@ -250,13 +253,15 @@ http://<example-app.test>/postCRUD // Esto devuelve una collection
 // Probarlo como sigue y veremos que la query es "select * from `posts` where `posted2` = not and `id` > 2"
 
 $posts = Post::where('posted2','not')->where('id','>',2)->get(); // Hay un error en :where('posted2','not'), debería ser 'posted'
-http://<example-app>.test/postCRUD // Genera un error SQLSTATE[42S22]: Column not found: 1054 Unknown column 'posted2' in 'where clause' (Connection: mysql, SQL: select * from `posts` where `posted2` = not and `id` > 2)
+http://<example-app>.test/postCRUD // Genera un error SQLSTATE[42S22]: Column not found: 1054 Unknown column 'posted2' in 
+                                    // 'where clause' (Connection: mysql, SQL: select * from `posts` where `posted2` = not and `id` > 2)
 
 // Para hacer un OR en un WHERE se codifica de la siguiente manera:
 $posts = Post::where('posted','not')->orWhere('id','>',2)->get(); // Where (posted = not) OR (id > 2)
 
 // Ojo con la concatenación, aplicar siempre paréntesis. Ojo con el orden del Where
-// Ojo con proyectos grandes con SQL sobre DDBB grandes, hay que tener un poco de conocimiento sobre Eloquent o Query Builder para SQL óptimo
+// Ojo con proyectos grandes con SQL sobre DDBB grandes, 
+//      hay que tener un poco de conocimiento sobre Eloquent o Query Builder para SQL óptimo
 
 // Ejemplo de query complejo con Eloquent:
         $posts = Post::where('posted','yes')
@@ -264,7 +269,7 @@ $posts = Post::where('posted','not')->orWhere('id','>',2)->get(); // Where (post
                         $query->where('posted','not')
                         ->where('category_id','2');
                     })->get();
-//  EL query generado sería : 
+//  EL query generado sería (provocar un error para verlo en pantalla): 
 //      select * from posts where posted = 'yes' or (posted = 'not' and category_id = 2);
 http://<blog-app.test>/postCRUD
 
@@ -291,9 +296,10 @@ $posts = Post::where('posted','not')->orderBy('id','desc')->get(); // Ordenado
 	// whereColumn / orWhereColumn
 	//  El mètode whereColumn pot usar-se per a verificar que dues columnes siguin igual
 
-// Revisar en la documentación de Laravel la documentación de Eloquent
+// Recomendación: revisar en la documentación de Laravel la documentación de Eloquent
+// https://laravel.com/docs/11.x/eloquent
 
-// Refinamos, ahora deseamos extraer solamente un conjunto de columnas de la tabla, no todas
+// Refinamos; Ahora deseamos extraer solamente un conjunto de columnas de la tabla, no todas
 // 	para ellos tenemos dos sistemas:
 
 // El select clásico
@@ -304,10 +310,8 @@ $posts = Post::select('title','url_clean','content')->get(); // Extracción de c
 // Ejemplo, una columna de una tabla solamente haríamos pluck
 $posts = Post::pluck('title','url_clean','content'); // Simplifica la salida, solamente los valores 
 
-
 // Limite y offset de una consulta de DDBB
-// $posts =  Posts::take(10)->skip(10)->get(); // De la 10 a la 20, es para paginar la salidad de la SELECT (no lo he probado) 
-
+// $posts =  Posts::take(10)->skip(10)->get(); // De la 10 a la 20, es para paginar la salidad de la SELECT 
 
 ************************** Fin Ejemplos ELOQUENT
 
@@ -317,19 +321,21 @@ $posts = Post::pluck('title','url_clean','content'); // Simplifica la salida, so
 ************* Retomamos el index()
 
 // Visto todo lo anterior, vamos ahora a crear el listado de Posts, 
-// 	el listado de los registros en la función index() de PostControllerCrud 
-// Pero la extracción de la info de la DDBB la queremos maquetar y no volcar con un dd(), usaremos una View
-// Mucho cuidado con pasar lo correcto, el resultado de Eloquent va en $posts, y lo pasaremos a la vista como 'posts'
+// 	    usaremos la función index() de PostControllerCrud 
+// La extracción de la info de la DDBB la queremos maquetar y no volcar con un dd(), por tanto, usaremos una View
+// Mucho cuidado con la sintaxis cuando lo pasamos del Controller a la View, 
+//      el resultado de Eloquent va en $posts, y lo pasaremos a la vista como 'posts'
 
 $posts = Post::all(); // Obtención de todas las publicaciones en $posts
 return view('post.index',['posts' => $posts]);  // Llamada a la View pasando $posts para maquetar el resultado del SQL
 
-// Ahora hay que crear la view 'index' en resources>view>post>index.blade.php (hacemos copy & paste de la create.blade.php) 
+// Ahora hay que crear la View 'index' en resources>view>post>index.blade.php 
+//      para crearla podemos hacer copy & paste de la create.blade.php
 // En general, en resources>view>post> tendremos que crear las View que usaremos desde el PostControllerCRUD
-// 	copy & paste de la create.blade.php y renombrar a index.blade.php
-// 	borrar todo el código que hay dentro que venía del create y meter lo siguiente
+// Copy & paste de la create.blade.php y renombrarla a index.blade.php
+// 	    borrar todo el código que hay dentro que venía del create y codificar el siguiente código
 // Recordar que esta vista recibe datos del PostControllerCRUD mediante return view('post.index',['posts' => $posts]); 
-// 	por tanto, ahora tendremos que manejar el 'posts'
+// 	    por tanto, dentro de la View tendremos que manejar 'posts'
 
 <!DOCTYPE html>
 <html lang="en">
@@ -360,10 +366,8 @@ return view('post.index',['posts' => $posts]);  // Llamada a la View pasando $po
 
 λ php artisan route:list
 GET|HEAD        postCRUD ........................... postCRUD.index › PostControllerCRUD@index
-GET|HEAD        categoryCRUD ............... categoryCRUD.index › CategoryControllerCRUD@index
 
-http://<example-app.test>/postCRUD
-http://<blog-app.test>/categoryCRUD
+http://<blog-app.test>/postCRUD
 
 
 ************************* show()
@@ -378,8 +382,9 @@ http://<blog-app.test>/categoryCRUD
     }
 
 // Hay que crear la View 'show' en resources>view>post>show.blade.php (hacemos copy & paste de la create.blade.php) 
-// Dentro de la View 'show' poner este código, es de solo salida, es un show, solo muestra información, no hay formulario 
-// Recordar que la llamamos con un ['post' => $posts], lo que significa que la info estár dentro de 'post', que solo será un registro
+// Dentro de la View 'show' escribir el siguiente código, 
+//      es de solo salida, es un show, solo muestra información, no hay formulario 
+// Recordar que la llamamos es un ['post' => $posts], lo que significa que la info está dentro de 'post', que solo será un registro
 
 <table border='1'>
   <tr>
@@ -398,13 +403,12 @@ http://<blog-app.test>/categoryCRUD
 λ php artisan route:list
 
 GET|HEAD        postCRUD/{postCRUD} ....................................... postCRUD.show › PostControllerCRUD@show
-GET|HEAD        categoryCRUD/{categoryCRUD} ........................categoryCRUD.show › CategoryControllerCRUD@show
 
 http://<example-app.test>/postCRUD/1
-http://<blog-app.test>/categoryCRUD/1
 
-// Si lo llamamos con algún registro que no existe genera un error de incontrolado, probarlo
-http://<example-app.test>/postCRUD/50 // Genera un error. 
+
+// Si lo llamamos con algún registro que no existe genera un error incontrolado, probarlo
+http://<example-app.test>/postCRUD/50 // Genera un error "Internal Server Error"
 
 // Tenemos algo en la función del Controller que nos puede ayudar
 public function show(string $id)
@@ -415,35 +419,33 @@ public function show(string $id)
 }
 http://<example-app.test>/postCRUD/50 // Genera un error controlado 404 Not Found
 
+
 // Hay una manera más directa de hacerlo todo. 
 // Cambiar todo el código de la funcion por lo siguiente, que incluye el 404 
-// Mucho cuidad con el nombre del parámetro mirar bien las routes
+// Ojo, mucho cuidad con el nombre del parámetro mirar bien las routes
 GET|HEAD        postCRUD/{postCRUD} ....................................... postCRUD.show › PostControllerCRUD@show
-GET|HEAD        categoryCRUD/{categoryCRUD} ........................categoryCRUD.show › CategoryControllerCRUD@show
 
 public function show(Post $postCRUD)
 {
-    return view('post.show',['post' => $postCRUD]);  // El nombre del parámetro es así, postCRUD/{postCRUD}  
+    return view('post.show',['post' => $postCRUD]);  // Porque el nombre del parámetro es así, postCRUD/{postCRUD}  
 }
 
 // Probarlo con y sin error
 http://<example-app.test>/postCRUD/5 // Muestra el registro
-http://<blog-app.test>/categoryCRUD/5
 http://<example-app.test>/postCRUD/50 // Genera un error controlado 404 Not Found
-http://<blog-app.test>/categoryCRUD/50
 
 
 ********************* edit()
 
-// Vamos ahora a la edición de los recursos, de los Posts. 
-// Crear la View como resources>views>post>edit.blade.php
-// Aplicar misma técnica que en show(), para el 404 not found automático 
+// Vamos ahora a la edición de las publicaciones. 
+// Crear la View como resources>views>post>edit.blade.php (copiar la View post.create)
+// Aplicar misma técnica que en show(), para obtener el mensaje controlado 404 not found  
 
 GET|HEAD        postCRUD/{postCRUD}/edit ..................................... postCRUD.edit › PostControllerCRUD@edit
 
 public function edit(Post $postCRUD)
 {
-    return view('post.edit',['post' => $postCRUD]); // Hay que crear la vista edit
+    return view('post.edit',['post' => $postCRUD]); // Llama a la vista post.edit
 }
 
 // Cambiar el edit.blade.php por el siguiente código:
@@ -451,13 +453,12 @@ public function edit(Post $postCRUD)
 // 	Si te olvidas del 'name' del 'form' la info no se envía, y el Request no la encuentra 
 // 	es una restricción de http, debe tener 'name' los campo del formulario
 
-// Copiar formulario del create, pero ahora el 'form' formulario debe apuntar al update(), no al store() como el create (mirarlo bien en rutas)
+// Copiar formulario del post.create, pero ahora el 'form' formulario debe apuntar al update(), no al store() como el create (mirarlo bien en rutas)
 // La petición al update() deberá ser método PUT (mirarlo en las rutas) 
 // Recordar incluir los valores por defecto, por ejemplo value={{$post->url_clean}} en los 'input' del formulario 
 
 λ php artisan route:list
 PUT|PATCH       postCRUD/{postCRUD} ........................................... postCRUD.update › PostControllerCRUD@update
-PUT|PATCH       categoryCRUD/{categoryCRUD} ........................... categoryCRUD.update › CategoryControllerCRUD@update
 
 // El resource>views>post>edit.blade.php queda finalmente como sigue:
 
@@ -505,7 +506,7 @@ PUT|PATCH       categoryCRUD/{categoryCRUD} ........................... category
             <div>{{$message}}</div>
         @enderror
 
-        <input type="submit" value="Crear" >
+        <input type="submit" value="Update">
     </form>
 
 </body>
@@ -513,69 +514,100 @@ PUT|PATCH       categoryCRUD/{categoryCRUD} ........................... category
 
 // Consultamos las rutas para llamarlo 
 GET|HEAD        postCRUD/{postCRUD}/edit ............................................... postCRUD.edit › PostControllerCRUD@edit
-GET|HEAD        categoryCRUD/{categoryCRUD}/edit ............................... categoryCRUD.edit › CategoryControllerCRUD@edit
 
-// Probarlo mediante la siguiente ruta (No tenemos generado todavía el update(), solo mostrará en pantalla el registro
+// Probarlo mediante la siguiente ruta (No tenemos generado todavía el update(), solo mostrará en pantalla el registro) 
 // http://<example-app.test>/postCRUD/{postCRUD}/edit // cambiando el {postCRUD} por diferentes valores
 
 http://<example-app.test>/postCRUD/2/edit
-http://<blog-app.test>/categoryCRUD/3/edit
 http://<example-app.test>/postCRUD/50/edit // Genera un 404
+
+
+
 
 
 ********************* update()
 
 // Ahora cambiamos el update() del PostControllerCRUD que será llamado desde el edit() 
-// app>Http>Controllers>PostControllerCRUD.php
-// vamos a la función update(), tiene que quedar así: 
-
-    // Recordar que viene del function edit(), el form de la view llama aquí 
-    // PUT|PATCH    postCRUD/{postCRUD} .......... postCRUD.update › PostControllerCRUD@update
-    // PUT|PATCH  categoryCRUD/{categoryCRUD} .... categoryCRUD.update › CategoryControllerCRUD@update
+//      la función update(), tiene que quedar así: 
+// Recordar que viene del function edit(), el form de la view llama aquí 
+//      PUT|PATCH    postCRUD/{postCRUD} .......... postCRUD.update › PostControllerCRUD@update
 
 public function update(Request $request, Post $postCRUD)
 {
 
-    $postCRUD->title = $request->title; // Actualiza title por el que viene del request
-    $postCRUD->url_clean = $request->url_clean; // Actualiza url_clean por el que viene del request
-    $postCRUD->content = $request->content; // Actualiza content por el que viene del request
+    $postCRUD->title = $request->title; // Actualiza el 'title' por el que viene en request
+    $postCRUD->url_clean = $request->url_clean; // Actualiza la 'url_clean' por la que viene en request
+    $postCRUD->content = $request->content; // Actualiza el 'content' por el que viene en request
 
     $postCRUD-> update(); //Actualizamos el registro de la DDBB 
-    return back(); // Vuelve a la página origen, y vuelve a cargar el registro actualizado
+    return back(); // Vuelve a la página origen, y carga el registro actualizado
 }
 
-// Y nos va quedando un PostControllerCRUD muy limpio y ordenado
-// 	no hay muchas líneas de código 
-// Probarlo, aunque falta refinar el update()
+// Y nos va quedando un PostControllerCRUD bastante limpio y ordenado
+// 	    no hay muchas líneas de código 
+// Probarlo, aunque falta refinar un poco el update()
 
 http://<blog-app.test>/postCRUD/5/edit
 http://<blog-app.test>/postCRUD/6/edit
 
 
-// Aplicamos un refinamiento en update()
+// Aplicamos un pequeño refinamiento en update()
 // Como está ahora, el udpate() no aplica las restricciones que sí aplicamos en el create()
-// Probarlo con un update poniendo el título en minúsculas o título en blanco y lo aceptará, sacar la lista de posts o editarlo
+// Probarlo con un update poniendo el título en minúsculas o título en blanco y lo aceptará, 
+//      comprobarlo sacando la lista de posts o editarlas
 
 http://<example-app.test>/postCRUD/4/edit // aquí poner title en blanco 
 http://<example-app.test>/postCRUD/4 // aquí se edita y se comprueba contenido 
  
-// Un buen programador tiene que reutilizar código
+************** límite de revisión 
+
+// Deberíamos aplicar controles, al estilo que los aplicamos en el create() 
 // Recordar que tenemos el app\Http\Requests\GuardarPostRequest.php que nos filtraba los input
-// 	hay que reutilizarlo, cambiar la functin update() de la siguiente manera: 
+// 	   no podemos reutilizarlo tal cual (hay un control para titulo y url únicos) y en update 
+//     nos daría problemas. Optamos por generar un control para update()
 
-public function update(GuardarPostRequest $request, Post $postCRUD)
+php artisan make:request ActualizarPostRequest // Crea un request en app>Http>Requests 
 
-// Y probar ahora de actualizar rompiendo las rules del create
-// 	pero claro, aplica todos filtros del create, por ejemplo, encuentra mismo title
-// Habría que crear un UpdatePostRequest con las rules apropiadas
+// Copiar el contenido del GuardarPostRequest.php y modificarlo de la siguiente manera
 
-// Volver a cambiarlo para dejarlo de la manera original, y dejamos como Ejercicio hacer el UpdatePostRequest
-public function update(Request $request, Post $postCRUD)
 
+   public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'title' => ['required','min:5','max:255', new Uppercase],
+            'url_clean' => 'required|min:5|max:255',
+            'content' => 'required|min:5|max:255',
+        ];
+    }
+
+    public function messages() {
+        return [
+            'title.required' => 'El título debe estar informado',
+            'title.min' => 'Título mínimo son 5 carateres',
+            'title.max' => 'Título máximo son 255 caracters',
+            'url_clean.required' => 'La url debe estar informada',
+            'url_clean.min' => 'La url mínimo son 5 carateres',
+            'url_clean.max' => 'La url máximo son 255 caracters',
+            'content.required' => 'El content debe estar informada',
+            'content.min' => 'El content mínimo son 5 carateres',
+            'content.max' => 'El content máximo son 255 caracters',
+        ]; 
+    }
+
+// Modificar la llamada para que actue el request recién creado 
+public function update(ActualizarPostRequest $request, Post $postCRUD)
+
+// Y probar ahora de actualizar rompiendo las rules del update 
 
 // Para simplificar todavía más el código 
-// 	podemos substituir todo el código anterior de la siguiente manera
-public function update(Request $request, Post $postCRUD)
+//      podemos substituir todo el código anterior de la siguiente manera
+
+public function update(ActualizarPostRequest $request, Post $postCRUD)
 {
         $postCRUD-> update($request->all()); //Actualizamos el registro de la DDBB 
         return back(); // Vuelve a la página origen, y vuelve a cargar el registro actualizado
@@ -588,26 +620,13 @@ public function update(Request $request, Post $postCRUD)
 // Y hay que especificar qué campos admiten este insert masivo
 // Por tanto habrá que modificar el app>Models>Post.php dejarlo como sigue:
 
-class Post extends Model
-{
-    use HasFactory;
-
-    protected $fillable = [
+    protected $fillable = [ 
         'title',
         'url_clean',
         'content',
+        'user_id',
+        'category_id', 
     ];
-}
-
-class Category extends Model
-{
-
-    // Campos que son updatables de manera masiva
-    protected $fillable = [
-        'title',
-        'url_clean',
-    ]; 
-}
 
 // Probarlo otra vez, ahora debería funcionar el udpate() 
 // Lo visto es una manera para no tener que añadir uno a uno todos los campos en el udpate(), se hace de manera masiva
@@ -622,60 +641,29 @@ protected $guarded = [
 
 // Al final el app>Models>Post.php quedaría como sigue
 
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Post extends Model
-{
-    use HasFactory;
-
-    // Campos que son updatables de manera masiva
-    protected $fillable = [
+    // Atributs que es poden emplenar de manera automàtica: associat al mètode 'Post::create()'
+    protected $fillable = [ 
         'title',
         'url_clean',
         'content',
+        'user_id',
+        'category_id', 
     ];
 
-    // Campos inmodificables
-    protected $guarded = [
-        'id'
-    ]; 
-
-}
-
-// Al final el app>Models>Category.php quedaría como sigue
-
-namespace App\Models;
-
-use App\Models\Post;
-
-use Illuminate\Database\Eloquent\Model;
-
-class Category extends Model
-{
-    // Campos inmodificables
-    protected $guarded = [
-        'id'
-    ]; 
-
-    // Campos que son updatables de manera masiva
-    protected $fillable = [
-        'title',
+    // Atributs que no es volen mostrar amb 'response()->json($posts)'
+    protected $hidden = [
         'url_clean',
-    ]; 
+    ];
 
-    public function posts() { // Nombre en plural porque es la padre del 1:N
-        return $this->hasMany(Post::class); // 1:N
-    }
-}
-
-
+    // Atributs que no es poden emplenar de manera automàtica
+    protected $guarded = [
+        'id'
+    ];
 
 // Ver como en app>Models>User.php tiene algunos de hidden que no se muestran en los formularios
 
-// Y no podemos aplicar la creación masiva en el store() del PostControllerCRUD.php porque hemos puesta una casuística en user_id (selección random) 
+// Y no podemos aplicar esta creación masiva en el store() del PostControllerCRUD.php 
+//      porque hemos puesta una casuística en user_id (selección random) 
 // $post->user_id = User::all()->random()->id; // Para que la FK funcione, elegimos aleatorio. 
 
 
@@ -687,7 +675,6 @@ class Category extends Model
 λ php artisan route:list
 
 DELETE   postCRUD/{postCRUD} ......................postCRUD.destroy › PostControllerCRUD@destroy
-DELETE   categoryCRUD/{categoryCRUD} ......categoryCRUD.destroy › CategoryControllerCRUD@destroy
 
     public function destroy(Post $postCRUD)
     {
@@ -698,7 +685,7 @@ DELETE   categoryCRUD/{categoryCRUD} ......categoryCRUD.destroy › CategoryCont
 
 // Pero no haremos una página HTML de delete, 
 // En el index(), añadiremos un formulario para llamar al delete()
-// 	es decir, que para cada elemento aparezca un botón de delete
+// 	    es decir, que para cada elemento aparezca un botón de delete
 // El resources>views>post>index.blade.php queda así:
  
 <table border='1'>
@@ -722,8 +709,9 @@ DELETE   categoryCRUD/{categoryCRUD} ......categoryCRUD.destroy › CategoryCont
 </table>
 
 // Observar que originalmente en el index() no tenemos @csrf ya que no se envía nada en index(), es de output
-//	ahora es una solicitud de borrado, por tanto, necesitamos el Security Token
+//      ahora es una solicitud de borrado, por tanto, necesitamos el Security Token
 // Eliminar algunos y comprobarlo en la DDBB que se ha borrado físicamente. 
+
 // Ejercicio: Aplicar la misma idea para el edit()
 
 // Ya tenemos una Web que aplica un CRUD que funciona, aunque es muy sencillo y con un diseño muy básico 
