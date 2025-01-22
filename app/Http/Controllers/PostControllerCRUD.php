@@ -98,7 +98,9 @@ class PostControllerCRUD extends Controller
 
         $post->save(); 
 
-        return back(); // Vuelve a la página anterior 
+        // return back(); // Vuelve a la página anterior 
+        // return back()->with('status', 'Publicación creada correctamente'); 
+        return redirect()->route('postCRUD.index')->with('status','<h1>Publicación creada correctamente</h1>'); 
     }
 
     /**
@@ -153,6 +155,7 @@ class PostControllerCRUD extends Controller
     {
         // Eliminación del registro 
         $postCRUD->delete(); 
-        return back(); 
+        // return back(); 
+        return back()->with('status', 'Publicación eliminada correctamente'); // Vuelve a la página llamante con un mensaje 
     }
 }

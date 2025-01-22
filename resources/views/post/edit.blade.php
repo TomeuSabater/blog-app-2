@@ -10,15 +10,7 @@
     <h3>Edit Post</h3>
 
     <!-- Gestión de errores -->
-    @if ($errors->any())
-      <div class="alert alert-danger">
-          <ul>
-              @foreach ($errors->all() as $error)
-                  <li>{{ $error }}</li>
-              @endforeach
-          </ul>
-      </div>
-    @endif
+    @include('components.alert') <!-- Muestra la lista de errores -->
 
 
      <!-- En caso contrario, mostramos el formulario, es llamada inicial -->

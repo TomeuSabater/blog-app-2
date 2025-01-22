@@ -8,58 +8,74 @@ Uso del Motor de plantillas BLADE
 
 Mejoras en las View, aplicar un diseño más avanzado y refinado
 
+Uso del Motor de plantillas BLADE
+	Tailwindcss (Problemas y resolución) 
+	Anonymous Components
+	Class Based Components
+	Dynamic Componets
+	Layout
+
 //////////////////////////////////////////////////////////////////////
 
 
 //// En este tema se verá un refinamiento a las View
-//// Utilizaremos el Motro de Plantillas Blade
+//// Utilizaremos el Motor de Plantillas Blade
 
 // Algo de repaso primero
 
 // Recordamos las Route de nuestro proyect
 λ php artisan route:list
 
-  GET|HEAD        postCRUD ...................................................................... postCRUD.index › PostControllerCRUD@index
-  POST            postCRUD ...................................................................... postCRUD.store › PostControllerCRUD@store
-  GET|HEAD        postCRUD/create ............................................................. postCRUD.create › PostControllerCRUD@create
-  GET|HEAD        postCRUD/{postCRUD} ............................................................. postCRUD.show › PostControllerCRUD@show
-  PUT|PATCH       postCRUD/{postCRUD} ......................................................... postCRUD.update › PostControllerCRUD@update
-  DELETE          postCRUD/{postCRUD} ....................................................... postCRUD.destroy › PostControllerCRUD@destroy
-  GET|HEAD        postCRUD/{postCRUD}/edit ........................................................ postCRUD.edit › PostControllerCRUD@edit
-  GET|HEAD        posts .............................................................................................. PostController@index
+  GET|HEAD        postCRUD .................................. postCRUD.index › PostControllerCRUD@index
+  POST            postCRUD .................................. postCRUD.store › PostControllerCRUD@store
+  GET|HEAD        postCRUD/create ......................... postCRUD.create › PostControllerCRUD@create
+  GET|HEAD        postCRUD/{postCRUD} ......................... postCRUD.show › PostControllerCRUD@show
+  PUT|PATCH       postCRUD/{postCRUD} ..................... postCRUD.update › PostControllerCRUD@update
+  DELETE          postCRUD/{postCRUD} ................... postCRUD.destroy › PostControllerCRUD@destroy
+  GET|HEAD        postCRUD/{postCRUD}/edit .................... postCRUD.edit › PostControllerCRUD@edit
+  GET|HEAD        posts .......................................................... PostController@index
 
-  GET|HEAD        categoryCRUD .......................................................... categoryCRUD.index › CategoryControllerCRUD@index
-  POST            categoryCRUD .......................................................... categoryCRUD.store › CategoryControllerCRUD@store
-  GET|HEAD        categoryCRUD/create ................................................. categoryCRUD.create › CategoryControllerCRUD@create
-  GET|HEAD        categoryCRUD/{categoryCRUD} ............................................. categoryCRUD.show › CategoryControllerCRUD@show
-  PUT|PATCH       categoryCRUD/{categoryCRUD} ......................................... categoryCRUD.update › CategoryControllerCRUD@update
-  DELETE          categoryCRUD/{categoryCRUD} ....................................... categoryCRUD.destroy › CategoryControllerCRUD@destroy
-  GET|HEAD        categoryCRUD/{categoryCRUD}/edit ........................................ categoryCRUD.edit › CategoryControllerCRUD@edit
+  GET|HEAD        categoryCRUD ....................... categoryCRUD.index › CategoryControllerCRUD@index
+  POST            categoryCRUD ....................... categoryCRUD.store › CategoryControllerCRUD@store
+  GET|HEAD        categoryCRUD/create .............. categoryCRUD.create › CategoryControllerCRUD@create
+  GET|HEAD        categoryCRUD/{categoryCRUD} .......... categoryCRUD.show › CategoryControllerCRUD@show
+  PUT|PATCH       categoryCRUD/{categoryCRUD} ...... categoryCRUD.update › CategoryControllerCRUD@update
+  DELETE          categoryCRUD/{categoryCRUD} .... categoryCRUD.destroy › CategoryControllerCRUD@destroy
+  GET|HEAD        categoryCRUD/{categoryCRUD}/edit ..... categoryCRUD.edit › CategoryControllerCRUD@edit
 
+
+// La ruta postCRUD.create es un GET|HEAD porque es la que llama al formulario de creación del recurso 
+//      este formulario de creacion es el que luego llamará a postCRUD.store
+// La ruta postCRUD.store es un POST y es donde se llevará a cabo la verdadera creación del recurso 
 
 // La ruta postCRUD.edit es un GET|HEAD porque es la que llama al formulario que mostrará el recurso 
 //      este formulario que muestra el recurso, es el que llamará a postCRUD.update
 // La ruta postCRUD.update sí es un PUT|PATCH y es donde ya habría la modificación del recurso  
 
-// La ruta postCRUD.create es un  GET|HEAD porque es la que llama al formulario de creación del recurso 
-//      este formulario de creacion es el que luego llamará a postCRUD.store
-// La ruta postCRUD.store es un POST y es donde se llevará a cabo la verdadera creación del recurso 
-
 // Recordar que @csrf añade un token hidden de seguridad en el formulario, 
 //      por ejemplo, verlo en resources>views>post>create.blade.php
-// En general todos los formularios deberán tener esta directiva @csrf de seguridad, simulando la persistencia
-// Con esta directiva, desde una página externa, no se podrá hacer un "POST" "PUT", porque debe ser desde una página anterior generada por el servidor
+// En general todos los formularios deberán tener esta directiva @csrf de seguridad, 
+//      simulando la persistencia
+// Con esta directiva, desde una página externa, no se podrá hacer un "POST" "PUT", 
+//      porque debe ser desde una página anterior generada por el servidor
 
 //// Hasta hora hemos confeccionado un CRUD que funciona, es muy sencillo y funcional, pero no es muy estético
-//// Este tipo de CRUD más funcionales que estéticos serían suficientes para un BackOffice MVP, o primera versión de la entrega del proyecto.
-////    su objetivo principal sería testear la funcionalidad y tener feed-back del usuario, posiblemente comenzar a configurar tablas maestras
-//// Vamos a ver em este tema cómo trabajamos con las View para maquetarlo con un aspecto visual mejorado y avanzado
+//// Este tipo de CRUD más funcionales que estéticos serían suficientes para un BackOffice MVP, 
+////      o primera versión de la entrega del proyecto, posiblemente un prototipo funcional. 
+//// Su objetivo principal sería testear la funcionalidad y tener feed-back del usuario, 
+////      posiblemente comenzar a configurar tablas maestras si hubiera urgencia. 
+
+//// Vamos a ver em este tema cómo trabajamos con las View para maquetarlo 
+////    con un aspecto visual mejorado y avanzado
 //// Recordar que desde el Controller llamamos a las View que podrán estar compuestas por (HTML + CSS + JS)
- 
+
+//// Comenzamos pues a trabajar mejorando la presentación  
+
 // Hemos visto cómo pasar datos a una View desde un Controller app>Http>Controllers>PostControllerCRUD.php
 // Por ejemplo, la llamada a la View post.show le pasamos el 'post'=>$postCRUD
+// Aquí se ve la "magia" de Laravel, puesto que obtiene el Model Post cuya PK es {postCRUD}
 
-        public function show(Post $postCRUD)
+    public function show(Post $postCRUD)
     {
         return view('post.show',['post' => $postCRUD]);  // El nombre del parámetro en la llamada es postCRUD/{postCRUD}  
     }
@@ -67,21 +83,23 @@ Mejoras en las View, aplicar un diseño más avanzado y refinado
 // Podemos mejorar la llamada a la View añadiendo un 'with' 
 //      para pasar a la View info puntual y concreta (no para pasar arrays, collections, etc.)
 // En el store() del Controller podemos añadir el 'with' en el return back() de la siguiente manera:
+//      se muestra un ejemplo para Post y un ejemplo para Category
 
         return back()->with('status', 'Publicación creada correctamente'); // Vuelve a la página anterior con un mensaje informativo
         return back()->with('status', 'Categoría creada correctamente'); // Vuelve a la página anterior con un mensaje informativo
 
-// Recordar que, como hacemos un back(), nos devolvería a la View llamante
-//      resources>view>category>create.blade.php donde deberíamos leer este with()
+// Recordar que, como hacemos un back(), nos devolvería a la View llamante que es la
+//      resources>view>category>create.blade.php y donde deberíamos leer este with()
 
 // En la View create.blade.php podemos añadir un control para mostrar este 'status', 
-//      se añadade un control porque no tendremos este mensaje en la 1a llamada al formulario y si en las siguientes
+//      se añadade un control porque no tendremos este mensaje en la 1a llamada al formulario 
+//      y puede que sí en las siguientes
 // En create.blade.php añadir el código entre el @if ($errors->any()) y el <form action="{{ route('postCRUD.store') }}" method="post">
 
     <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
     @if (session('status'))
         <div class="alert alert-primary role='alert'">
-            {!! session('status') !!}
+            {{ session('status') }}
         </div>
     @endif
 
@@ -91,15 +109,15 @@ http://blog-app.test/categoryCRUD/create
 
 
 // Ejercicio; en el destroy() podemos hacer algo similar 
-//      ahora mismo, no tenemos ningún mensaje de confirmación 
+//      ahora mismo, no tenemos ningún mensaje de confirmación de borrado
 
         $postCRUD->delete(); 
 	    return back()->with('status', 'Publicación eliminada correctamente'); // Vuelve a la página llamante con un mensaje 
 
         $categoryCRUD->delete(); 
-        return back()->with('status','Category eliminada correctamente'); // Vuelve a página llamante con un mensaje 
+        return back()->with('status','Categoría eliminada correctamente'); // Vuelve a página llamante con un mensaje 
 
-// Y añadir el mismo de mostrar mensaje 'status' código en la View index.blade.php
+// Y añadir el mismo control de mostrar mensaje 'status' en la View index.blade.php
 //	    recordar que el destroy() se llama desde la View index.blade.php 
 
 // En resources>views>post>index.blade.php
@@ -108,7 +126,7 @@ http://blog-app.test/categoryCRUD/create
     <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
     @if (session('status'))
         <div class="alert alert-primary role='alert'">
-            {!! session('status') !!}
+            {{ session('status') }}
         </div>
     @endif
 
@@ -118,36 +136,45 @@ http://blog-app.test/categoryCRUD
 
 
 // Ejercicio; en store() hacer lo mismo pero 'saltar' a index()
-// Esto permite cear un elemento (publicación, categoría, etc.) y 'saltar' al index() para mostrarlas todas con un mensaje. 
+// Esta redirección permite cear un elemento (publicación, categoría, etc.) 
+//      y 'saltar' al index() para mostrar todos los elementos con un mensaje. 
 
-        $post->save(); 
-        return redirect()->route('postCRUD.index')->with('status','<h1>Publicación creada correctamente</h1>'); 
+        $post->save();  // Guarda el registro en la DDBB
+        return redirect()->route('postCRUD.index')->with('status','Publicación creada correctamente'); 
 
         $category->save();  // Guarda el registro en la DDBB
-        return redirect()->route('categoryCRUD.index')->with('status','<h1>Categoría creada correctamente</h1>'); 
+        return redirect()->route('categoryCRUD.index')->with('status','Categoría creada correctamente'); 
 
 // Probarlo 
 
 http://blog-app.test/postCRUD/create
 http://blog-app.test/categoryCRUD/create 
 
-// Y ahora se podría borrar de la View create.blade.php puesto que el store() 'salta' a la index.blade.php
+
+// Y ahora se podría borrar el control de la View create.blade.php 
+//      puesto que el store() 'salta' a la index.blade.php
 // En general, podemos redireccionar según nos convenga
 
 // La visto es una manera muy sencilla de devolver una información puntual a una View
-// Lo visto hasta ahora sería la primera versión de una entrega para un Backoffice, es 100% funcional y cuida mínimamente la presentación
-// Con esta versión ya se podría salir a producción, sería un MVP (Minium Valuable Product) para que los usuarios de backoffice
-//	pudieran comenzar a configurar los datos básicos: Categories, Tags, Users, etc.  
-// Es un CRUD que atiende mñas a funcionalidad que a presentación, por ejemplo, falta un Menú para las opciones. 
 
+//// Todo Lo visto hasta ahora sería la primera versión de una entrega para un Backoffice, 
+////      es 100% funcional aunque cuida mínimamente la presentación.
+//// Con esta versión ya se podría salir a producción, sería un MVP (Minium Valuable Product) 
+////    para que los usuarios de backoffice pudieran comenzar a configurar los datos básicos
+//// Es un CRUD que atiende más a la funcionalidad que a la presentación, 
+////    por ejemplo, falta un Menú para las opciones (hay que teclear algunas) 
 
+//// Entramos de lleno en las posibilidades de presentación de Laravel
+////    mediante el motor de plantillas BLADE
 
 //////////////// MOTOR DE PLANTILLAS BLADE
+(https://laravel.com/docs/11.x/blade#main-content)
 
-// Recordar que en resources>views> tenemos las View de la presentación; las vistas con código HTML + CSS + JS
+// Recordar que en resources>views> tenemos las View de la presentación; 
+//      las presentaciones con código HTML + CSS + JS
 // El Motor de Plantillas BLADE nos da una serie de herramientas para mejorar las View
 
-// Hasta ahora, hemos visto que en las View para mostrar datos los ubicamos entre {{ }}
+// Hasta ahora, hemos visto que en las View, para mostrar datos, los ubicamos entre {{ }}
 // Ejemplo: de la index.blade.php de publicaciones 
 
                 <td>{{ $post->id }}</td>
@@ -173,10 +200,6 @@ http://<example-app.test>/postCRUD
 // Tambien es ok para depuración, dejar el script y así lo podemos consultar en cualquier momento
 // Se podría manipular a nivel de JS
 // En index.blade.php añadir lo siguiente: 
-//      Observación: Si Laravel NO está aplicando el TailwindCSS
-//      añadir el siguient script en la cabezera de la View para que lo aplique 
-//      @vite(['resources/css/app.css', 'resources/js/app.js'])
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -184,10 +207,7 @@ http://<example-app.test>/postCRUD
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Index Posts</title>
-
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+   
     <!-- Mostramos estructura en formato Json vía consola para debug -->
     <script>
         var app = @json($posts);
@@ -197,8 +217,10 @@ http://<example-app.test>/postCRUD
 </head>
 
 http://example-app.test/postCRUD
+// y comprobarlo sacando la console del navegador
 
 // Comentarlo todo lo anterior y dejarlo como estaba
+//      o dejar el script para un futuro debug que substituir el dd($posts)
 
 // En BLADE, para mostrar datos, siempre parsea mediante 'htmlspecialchars' de PHP para evitar ataques XSS 
 // Por ejemplo; en PostControllerCRUD.php modificar lo siguiente en return() de la función store()
@@ -208,7 +230,9 @@ http://example-app.test/postCRUD/create
 
 // Veremos que muestra el <h1>, y no lo interpreta
 //      observando el código html veremos que  &lt;h1&gt;Publicación creada correctamente&lt;/h1&gt;
-// Si queremos que, en lugar de mostrarse se interprete, hay que substituir {{ }}, y hay que indicarlo mediante {!! !!}
+
+// Si queremos que, en lugar de mostrarse se interprete, hay que substituir {{ }}, 
+//      y hay que indicarlo mediante {!! !!}
 // Ir al create.blade.php y modificar lo siguiente 
 
     <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
@@ -221,12 +245,15 @@ http://example-app.test/postCRUD/create
 
 http://example-app.test/postCRUD/create
 
-// Y ahora pinta el mensaje en <h1>, en lugar de mostrar el <h1>
-// Ojo, imaginad que en el textarea de las publicaciones alguien inserta el código <script>alert("HOLA")</script>, 
+// Y ahora renderiza el mensaje en <h1>, en lugar de mostrar el tag <h1>
+
+// Obviamente, no se recomienda en la info aportada por el usuario (ataques XSS)
+// Ejemplo: imaginad que en el textarea de las publicaciones alguien inserta el código 
+//      <script>alert("HOLA")</script>, 
 //      el htmlspecialchars lo evita, no lo interpreta
-//      <script>alert("Hola")</script>
 //      para interpretarlo habría que añadir el {!! !!}
-// Probar lo anterior, observamos que el content muestra el código y no lo interpreta.  
+// Probar lo anterior intentado un ataque XSS, 
+//      observamos que el content muestra el código y no lo interpreta  
 //      porque tenemos un <td>{{ $post->content }}</td>
 
 // Inciso: Podemos usar una directiva de entorno para las view, 
@@ -234,27 +261,18 @@ http://example-app.test/postCRUD/create
 // @env('local') @endenv
 // @env(['staging','production']) @endev
 
-// Código en BLADE ()
-// Ojo, no abusar, tener en cuenta que es código para generación y control de Views
+/////////  Código en BLADE ()
+
+// Ojo, no abusar, tener en cuenta que es código para maquetación y control de Views
 //      en absoluto se debería usar para código de negocio, que debe estar en los Controller
 // Código en Views es recomendado para temas informativos o de diseño (CSS), no para control de programación
+// Ejemplo, qué info mostrar sería en Controller, cómo mostrar sería en View 
 
+// Veamos como aplicar condicionales en las View:
+// para condicionales @if @else @elseif @endif
+// @isset @endiseet @empty @endempty
 
-// Veamos como aplicar condicionales en las View
-
-// Condicionales 
-// @if 
-// @elsif
-// @else 
-// @endif
-
-// @isset 
-// @endiseet 
-
-// @empty 
-// @endempty
-
-// El switch
+// El switch:
 // @switch($i)
 // @case(1)
 //      <!-- Primer cas -->
@@ -266,7 +284,7 @@ http://example-app.test/postCRUD/create
 //	    <!-- Cas per defecte -->
 // @endswitch	
 
-// El for / foreach / forelse / while
+// El for / foreach / forelse / while:
 //@for ($i = 0; $i < 10; $i++)
 //      <li>The current value is {{ $i }}</li>
 //@endfor
@@ -275,27 +293,19 @@ http://example-app.test/postCRUD/create
 //      <p>This is user {{ $user->id }}</p>
 //@endforeach
 
-//@forelse ($users as $user) 
-//      <li>{{ $user->name }}</li>
-//@empty
-//	    <p>No users</p>
-//@endforelse
-
-
-// Características de los bucles. 
-
+// Características de los bucles: 
 //@while (true)
 //	    <p>I'm looping forever.</p>
 //@endwhile
 
-// Ejemplo de iteración  
+// Ejemplo de iteración:
 // En resources>views>post>index.blade.php añadir el siguiente código al inicio, y probarlo 
 @for ($i = 0; $i < 10; $i++)
 	<li>The current value is {{ $i }}</li>
 @endfor
 http://example-app.test/postCRUD
 
-// Forelse
+// Forelse: 
 //      Es un caso especial, si hay usuarios los muestra, en caso contrario muestra una alternativa
 //@forelse ($users as $user) 
 //	    <li>{{ $user->name }}</li>
@@ -315,7 +325,6 @@ http://example-app.test/postCRUD
 //        @break
 //    @endif
 // @endforeach
-
 
 // Por defecto, en los bucles, hay una variable $loop que se puede consultar. 
 
@@ -340,16 +349,7 @@ $loop->parent Quan està en un bucle dins un altre bucle, la variable del bucle 
                 <td>{{ $post->id }} -- {{ $loop->index }}</td>
                 <td>{{ $post->title }}</td>
                 <td>{{ $post->posted }}</td>
-                <td>{{ $post->content }}</td>
-                <td>{{ $post->created_at }}</td>
-                <td>{{ $post->updated_at }}</td>
-                <td>
-                    <form action="{{route('postCRUD.destroy', ['postCRUD' => $post->id ])}}" method="POST">
-                        @method('DELETE') <!-- rectificamos method -->
-                        @csrf <!-- Security Token -->
-                        <button type="submit" class="btn tbn-danger btn-sm">Delete</button>
-                    </form> 
-                </td>
+                ... 
             </tr>
         @endforeach
     </table>
@@ -357,20 +357,23 @@ $loop->parent Quan està en un bucle dins un altre bucle, la variable del bucle 
 http://blog-app.test/postCRUD
 
 
-// Veamos la estructura de las plantillas. 
-// BLADE es un motor de plantillas y el código se muy sencillo
+///////////////////////////////////////// COMPONENTS
 
+//////////////// ANONYMOUS COMPONENTS
 
-//////// COMPONENTS
-// Ejemplo de Component:
-// A nivel de diseño los errores siempre deberían ser iguales, el código de visualización de error siempre debería ser igual
-// 	errores con mismo diseño independientemente del error, así el usario sabrá identificar que hay error / warning. 
-// Entonces, podemos extraer el código de errores del create.blade.php y ubicarlo en un apartado externo y llamarlo; será un COMPONENT
-// 	tenerlo como estandar y poder mantenerlo de manera centralizada y reutilizarlo (spoiler: Layout con Header / Footer de todas las páginas) 
+// Ejemplo de Component (Elementos de View rehusables)
+// A nivel de diseño los errores siempre deberían ser iguales, 
+//      el código de visualización de error siempre debería ser igual
+// 	    errores con mismo diseño independientemente del error, 
+//      así el usario sabrá identificar que hay error / warning. 
+// Entonces, podemos extraer el código de errores del create.blade.php 
+//      y ubicarlo en un apartado externo y llamarlo; será un COMPONENT
+// Un Componente nos permite tener elementos estandard 
+//      para poder mantenerlos de manera centralizada y reutilizarlos 
+//      (spoiler: Layout con Header / Footer de todas las páginas) 
 // Vamos a crear un código reutilizable para las plantillas que ya tenemos del CRUD, creamos un COMPONENT
 
-
-// Recordar el sistema de errores que tenemos ahora del create.blade.php de post y category
+// Recordar el sistema de errores que tenemos ahora del create.blade.php de Post, Category, etc.
 
 @if ($errors->any())
       <div class="alert alert-danger">
@@ -382,8 +385,10 @@ http://blog-app.test/postCRUD
       </div>
 @endif
 
-// Para extraerlo, en resources>view>components crear un fichero alert.blade.php (resources>view>components>alert.blade.php)
+// Para extraerlo, en resources>view>components crear un fichero alert.blade.php 
+//      resources>view>components>alert.blade.php
 // Extraer el código de errores del create.blade.php e insertarlo en este nuevo fichero
+
 @if ($errors->any())
       <div class="alert alert-danger">
           <ul>
@@ -394,74 +399,77 @@ http://blog-app.test/postCRUD
       </div>
 @endif
 
-// Y en el create.blade.php, donde había el código original, incluir una llamada para incluir el código extraído 
+// Y en el create.blade.php, donde había el código original, 
+//      codificar una llamada para incluir el código extraído 
     @include('components.alert') <!-- Muestra la lista de errores -->
 
-// Probar que desde la view se llama al nuevo componente
+// Probar que desde la View se llama al nuevo Component
 http://<example-app.test>/postCRUD/create
 http://<blog-app.test>/categoryCRUD/create
-
 
 // Ejercicio, aplicar la misma estrategia al edit.blade.php
 http://<blog-app.test>/postCRUD/2/edit
 
-
-// Refinamiento: 
-// Creamos un componente nuevo denominado card-posts.blade.php 
-// En la View de index.blade.php, para cada publicación y categoría, mostrarlo aplicando este componente
+// Refinamiento importante: 
+// Creamos un nuevo Component denominado card-posts.blade.php 
+// En la View de index.blade.php, para cada publicación (y categoría), mostrarlo aplicando este componente
 //	    es una manera de reutilizar código de maquetación
-// 	    es una manera muy sencilla de crear un Card (o maquetación tipo tarjeta) para cada publicación o categoría
+// 	    es una manera muy sencilla de crear un Card (o maquetación tipo tarjeta) para cada elemento
 // En general, cuando tengamos que mostrar una lista de elementos, es buena estrategia crear un componente con 
 //	    código para mostrar los distintos elementos en modo Card (tarjeta) y reutilizarlo.
 // Para iterar y llamarlo, aplicaremos lo siguiente:
-// 	@each('components.cards-posts', $posts, 'post')
+// 	    @each('components.cards-posts', $posts, 'post')
 
-// Lo hacemos paso a paso
+// Lo hacemos paso a paso (es un buen ejemplo de Anonymous Component)
 
 // Crear las siguientes subvista en 
 //      components>card-posts.blade.php
 //	    components>card-categories.blade.php
-// Es una maquetación estándard que muestra la información de (posts / categories) 
+// Es una maquetación estándard que muestra la información de (posts / categories / etc.) 
 // 	    esta maquetación se puede alterar a voluntad según preferencias de cada uno
 //      (Ojo, no para BaleArt porque la maquetación del BackOffice es impuesta por motivos de tiempo y presupuesto)
-// No obstante, a nivel de backoffice, se recomienda no esmerarse mucho en las presentaciones, 
-//	    se pretende un desarrollo rápido mediante pantallas funcionales, suelen ser de uso interno. 
+// No obstante, a nivel de Backoffice, se recomienda no esmerarse mucho en las presentaciones, 
+//	    se pretende un desarrollo rápido mediante pantallas funcionales, que suelen ser de uso interno. 
 
 // Para Posts card-posts.blade.php
-//      recordar que si no se aplica el Tailwindcss hay que incluir
-//      en la cabezera <head> </head> el siguiente script
-//      @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-<div class="block rounded-lg bg-white shadow-secondary-1 dark:bg-surface-dark">
-    <div class="p-6 text-surface dark:text-white" >
+<div class="block rounded-lg bg-white shadow-secondary-1">
+    <div class="p-6 text-surface">
         <h5 class="mb-2 text-xl font-medium leading-tight">{{ $post->title }}</h5>
-        <p class="mb-4 text-base">{{ $post->content  }}</p>
-        <a href="{{route('postCRUD.show' , ['postCRUD' => $post->id ])}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Veure</a>
-        <a href="{{route('postCRUD.edit' , ['postCRUD' => $post->id ])}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Editar</a>
+        <h3 class="mb-2 text-xl font-medium leading-tight">{{ $post->url_clean }}</h3>
+        <p class="mb-4 text-base">{{ $post->content }}</p>
+        <p class="mb-4 text-sm">posted: {{ $post->posted }}</p>
+        <p class="mb-4 text-sm">created at: {{ $post->created_at }}</p>
+        <p class="mb-4 text-sm">updated at: {{ $post->created_at }}</p>
+        <a href="{{route('postCRUD.show' , ['postCRUD' => $post->id])}}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Show</a>
+        <a href="{{route('postCRUD.edit' , ['postCRUD' => $post->id ])}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
         <form action="{{route('postCRUD.destroy' , ['postCRUD' => $post->id ])}}" method="POST" class="float-right">
            @method('DELETE')
            @csrf
-           <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Delete</button>
+           <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" >Delete</button>
         </form>
     </div>
 </div>
 
 // Para Category en resources>views>components>card-categories.blade.php
+//  Se anima al alumno a mejorarlo levemente, quizás faltan elementos. 
 <div class="block rounded-lg bg-white shadow-secondary-1">
     <div class="p-6 text-surface " >
         <h5 class="mb-2 text-xl font-medium leading-tight">{{ $category->title }}</h5>
-        <a href="{{route('categoryCRUD.show' , ['categoryCRUD' => $category->id ])}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Show</a>
-        <a href="{{route('categoryCRUD.edit' , ['categoryCRUD' => $category->id ])}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
+        <h3 class="mb-2 text-xl font-medium leading-tight">{{ $category->url_clean }}</h3>
+        <a href="{{route('categoryCRUD.show' , ['categoryCRUD' => $category->id])}}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Show</a>
+        <a href="{{route('categoryCRUD.edit' , ['categoryCRUD' => $category->id])}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
         <form action="{{route('categoryCRUD.destroy' , ['categoryCRUD' => $category->id ])}}" method="POST" class="float-right">
            @method('DELETE')
            @csrf
-           <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Delete</button>
+           <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" >Delete</button>
         </form>
     </div>
 </div>
 
-// Y en index.blade.php substituir el código HTML de la tabla (toda la tabla) que hay por lo siguiente:
-// 	realmente, estas líneas de código sería lo único que nos debería quedar en index.blade.php
+// Y en index.blade.php de Post y Category substituir el código HTML de la tabla (toda la tabla) 
+//      que hay por lo siguiente:
+//      realmente, estas líneas de código sería lo único que nos debería quedar en index.blade.php
 
     <!-- Se muestran los elementos en forma de Card -->
     <div class="row row-cols-1 row-cols-md-3 g-4 ">
@@ -480,13 +488,21 @@ http://<blog-app.test>/postCRUD/2/edit
 http://blog-app.test/postCRUD
 http://blog-app.test/categoryCRUD
 
+// Observación (https://laravel.com/docs/11.x/blade#loops) 
+@each('view.name', $jobs, 'job')
+@each('view.name', $jobs, 'job', 'view.empty')
+The @each directive's first argument is the view to render for each element in the array or collection. 
+The second argument is the array or collection you wish to iterate over
+The third argument is the variable name that will be assigned to the current iteration within the view. 
+You may also pass a fourth argument to the @each directive. This argument determines the view that will be rendered if the given array is empty.
 
-**********************************************  (PROBLEMAS DE APLICACIÓN DE TAILWINDCSS) 
+
+**********************************************  (PROBLEMAS DE APLICACIÓN DE TAILWINDCSS) (aqui)
 
 // A veces existen problemas de renderización usando Tailwindcss
 // Normalmente, si es un proyecto que justo después de la creación se instala el Breeze, no suele dar problemas
 // Hemos detectado que si es un proyecto en el que ya se ha trabajado, por ejemplo, creado el API 
-//      y luego se instala el Breeze puede ignorarse el Tailwindcss en las View (desconozco el motivo)
+//      y luego se instala el Breeze puede ignorarse el Tailwindcss en las View (desconocemos el motivo)
 // Para solventar este error añadir estas líneas de código en la cabezera de las View 
 
 <!DOCTYPE html>
@@ -498,7 +514,6 @@ http://blog-app.test/categoryCRUD
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
 </head>
 
 // El script debería generar (verlo en código fuente html)
@@ -508,10 +523,8 @@ http://blog-app.test/categoryCRUD
     <link rel="stylesheet" href="http://blog-app.test/build/assets/app-BFVlPjrh.css" />
     <script type="module" src="http://blog-app.test/build/assets/app-Cy98PJ2n.js"></script>    
 
-// Se han probado otras soluciones,  pero no me han funcionado 
 
-
-*****************************************************************  (FIN PROBLEMAS DE APLICACIÓN DE TAILWINDCSS) 
+**********************************************  (FIN PROBLEMAS DE APLICACIÓN DE TAILWINDCSS) 
 
 // La directiva @each es muy interesante porque nos proporciona un listado, un volcado completo,  
 // Obervar que en index.blade, bien hecho, nos quedaría una única linea en el <body> gracias a la directiva @each()
@@ -543,7 +556,6 @@ http://example-app.test/postCRUD
         $categories = Category::paginate(3); // Devuelve el resultado de 3 en 3 publicaciones
         return view('category.index',['categories' => $categories]); 
     }
-
 
 //  Probarlo ahora con un dd($posts) o mirando la consola (si no borramos esa opción)
 //	para indagar el contenido de posts o categories
@@ -596,6 +608,10 @@ Showing 7 to 9 of 11 results « Previous Next »
 // También se puede crear componentes más sofisticados, que tienen como base una Class 
 //      para poder pasar info adicional, esto nos da mucha más flexibilidad.
 // Los COMPONENTES ANONIMOS (Anonymous Components) resources>views>components>xxx.blade.php son los componentes que hemos creado hasta ahora
+
+
+//////////////// CLASS BASED COMPONENTS
+
 // Vemos COMPONENTES BASADOS EN UNA CLASS (Class Based Components), creamos uno, 
 //      y estos ya se crean con la terminal, y generan 2 ficheros
 

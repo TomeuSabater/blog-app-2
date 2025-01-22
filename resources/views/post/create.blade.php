@@ -18,15 +18,15 @@
         <h2>No tenim cap error</h2> 
     @endif
 
-    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+    @include('components.alert') <!-- Muestra la lista de errores -->
+
+    <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
+    @if (session('status'))
+        <div class="alert alert-primary role='alert'">
+            {!! session('status') !!}
+        </div>
     @endif
+
 
      <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
     

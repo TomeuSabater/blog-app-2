@@ -663,7 +663,6 @@ protected $guarded = [
 //      $post->category_id = Category::all()->random()->id; // Para que la FK category_id funcione, elegimos al azar
 //      $post->user_id = User::all()->random()->id; // Para que la FK funcione, elegimos aleatorio. 
 
-********************  HASTA AQUÍ EL MARTES 21 ENERO
 
 ********************* destroy()
 
