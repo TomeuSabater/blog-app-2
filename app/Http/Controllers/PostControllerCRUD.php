@@ -25,12 +25,12 @@ class PostControllerCRUD extends Controller
         // Aplicamos un WHERE
         // $posts = Post::where('posted','=','not')->get(); // Where posted=not
         // $posts = Post::where('posted','not')->where('id','>',2)->get(); // Where (posted = not) AND (id > 2); 
-        // $posts = Post::where('posted2','not')->where('id','>',2)->get(); // Where (posted = not) AND (id > 2); 
+        // $posts = Post::where('posted2','not')->where('id','>',2)->get(); // Where (posted = not) AND (id > 2); // tiene error
         // $posts = Post::where('posted','not')->orWhere('id','>',2)->get(); // Where (posted = not) OR (id > 2)
         // $posts = Post::where('posted','yes')
         //     ->orwhere(function($query) {
-        //             $query->where('posted2','not')
-        //             ->where('category_id','2');
+        //             $query->where('posted','not')
+        //            ->where('category_id','2');
         //     })->get();
         // $posts = Post::where('posted','not')->where('id','>',2)->first(); // Where (posted = not) OR (id > 2) y solo el primero 
         // $posts = Post::where('posted','not')->orderBy('id','desc')->get(); // Ordenado
@@ -62,7 +62,7 @@ class PostControllerCRUD extends Controller
 
         // dd($user);  // para ver la respuesta del select anterior
         
-        return view('post.create'); // Llama a la vista create.blade.php
+        return view('post.create'); // Llama a la vista create.blade.php que muestra el formulario de creación
     }
 
     /**
@@ -71,17 +71,16 @@ class PostControllerCRUD extends Controller
     public function store(GuardarPostRequest $request)
     {
 
-       echo "estoy en function store() de PostControllerCrud<br>"; 
+       // echo "estoy en function store() de PostControllerCrud<br>"; 
 
-       echo 'Title = '.$request->input('title').'<br>';
-       echo 'Title = '.$request->title.'<br>';
-       echo 'Title = '.request('title'); 
+       // echo 'Title = '.$request->input('title').'<br>';
+       // echo 'Title = '.$request->title.'<br>';
+       // echo 'Title = '.request('title'); 
     
         // Validación de los input del formulario
         // $request->validate([
         //   'title' => 'required|unique:posts|min:5|max:255',
         // ]);
-
 
           // dd($request); // Desgrana el $request y lo pinta en pantalla
 
@@ -100,35 +99,35 @@ class PostControllerCRUD extends Controller
         $post->save(); 
 
         return back(); // Vuelve a la página anterior 
-
     }
 
     /**
      * Display the specified resource.
      */
 
+     
      /** 
-    *public function show(string $id)
-    *{
-    *
-    *   // $posts = Post::find($id); // Extrae registro con PK = id
-    * $posts = Post::findorfail($id); // Genera una respuesta http de error en caso de not found. Un 404
-    * return view('post.show',['post'=>$posts]); // // Recordar crear la vista 
-    *}
+    * public function show(string $id)
+    * {
+    * 
+    *    // $posts = Post::find($id); // Extrae registro con PK = id
+    *    $posts = Post::findorfail($id); // Genera una respuesta http de error en caso de not found. Un 404
+    *    return view('post.show',['post'=>$posts]); // // Recordar crear la vista 
+    * }
     */
-
+    
     public function show(Post $postCRUD)
     {
         return view('post.show',['post' => $postCRUD]);  // El nombre del parámetro en la llamada es postCRUD/{postCRUD}  
     }
-
+    
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Post $postCRUD)
     {
-        return view('post.edit',['post' => $postCRUD]); // Llama a la vista post.edit
+        return view('post.edit',['post' => $postCRUD]); // Llama a la vista post.edit que muestra form de update
     }
 
     /**
@@ -145,7 +144,6 @@ class PostControllerCRUD extends Controller
 
         $postCRUD-> update($request->all()); //Actualizamos el registro de la DDBB 
         return back(); // Vuelve a la página origen, y vuelve a cargar el registro actualizado
-
     }
 
     /**

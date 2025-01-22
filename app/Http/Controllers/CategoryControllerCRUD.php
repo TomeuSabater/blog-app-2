@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Http\Requests\GuardarCategoryRequest;
+use App\Http\Requests\ActualizarCategoryRequest;
 
 class CategoryControllerCRUD extends Controller
 {
@@ -11,7 +14,8 @@ class CategoryControllerCRUD extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::all(); // Obtener todos los registros
+        return view('category.index',['categories' => $categories]); // Los mostramos con la View 
     }
 
     /**
@@ -25,51 +29,53 @@ class CategoryControllerCRUD extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(GuardarCategoryRequest $request)
     {
 
-        echo "estoy en function store() de CategoryControllerCrud"; 
+        $category = new Category; 
 
-        // echo 'Title'.$request->input('title').'<br>';
-        // echo 'Title'.$request->title.'<br>';
-        // echo 'Title'.request('title'); 
+        $category->title = $request->title;
+        $category->url_clean = $request->url_clean;  
 
-        // dd($request); // Desgrana el $request y lo pinta en pantalla
-
-        // $request->validate([
-        //     'title' => 'required|unique:categories|min:5|max:255',
-        // ]);
+        $category->save(); 
+        
+        return back(); // Vuelve a la página anterior 
     }
+
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Category $categoryCRUD)
     {
-        //
+        return view('category.show',['category'=>$categoryCRUD]); // Lo muestra en la View category.show
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Category $categoryCRUD)
     {
-        //
+        return view('category.edit',['category'=>$categoryCRUD]); // Lo muestra en la View category.edit
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(ActualizarCategoryRequest $request, Category $categoryCRUD)
     {
-        //
+
+        $categoryCRUD-> update($request->all()); //Actualizamos el registro de la DDBB 
+        return back(); // Vuelve a la página origen, y vuelve a cargar el registro actualizado
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Category $categoryCRUD)
     {
-        //
+        // Eliminación del registro 
+        $categoryCRUD->delete(); 
+        return back(); 
     }
 }

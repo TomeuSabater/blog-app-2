@@ -44,6 +44,7 @@ php artisan route:list
 
 // Recordar también del tema anterior que podemos implementar Rules (app>Rules) a nuestra conveniencia
 // 	ejemplo: app>Rules>Uppercase.php que se usa desde app>Http>Requests>GuardarPostRequest.php
+//  y GuardarPostRequest se utiliza en la función store() del Controller
 
 // Recordar también que el orden de las validaciones definidas en GuardarPostRequest.php será el que se aplica
 //      ante varios errores del mismo campo, solamente muestra el primero según se hayan definido las validaciones
@@ -657,10 +658,12 @@ protected $guarded = [
 
 // Ver como en app>Models>User.php tiene algunos de hidden que no se muestran en los formularios
 
-// Y no podemos aplicar esta creación masiva en el store() del PostControllerCRUD.php 
-//      porque hemos puesta una casuística en user_id (selección random) 
-// $post->user_id = User::all()->random()->id; // Para que la FK funcione, elegimos aleatorio. 
+// Y, ahora mismo, no podemos aplicar esta creación masiva en el store() del PostControllerCRUD.php 
+//      porque hemos puesta unas casuística en user_id y category_id (selección random) 
+//      $post->category_id = Category::all()->random()->id; // Para que la FK category_id funcione, elegimos al azar
+//      $post->user_id = User::all()->random()->id; // Para que la FK funcione, elegimos aleatorio. 
 
+********************  HASTA AQUÍ EL MARTES 21 ENERO
 
 ********************* destroy()
 
@@ -678,7 +681,7 @@ DELETE   postCRUD/{postCRUD} ......................postCRUD.destroy › PostCont
         return back(); 
     }
 
-// Pero no haremos una página HTML de delete, 
+// Pero no haremos una página HTML de delete. 
 // En el index(), añadiremos un formulario para llamar al delete()
 // 	    es decir, que para cada elemento aparezca un botón de delete
 // El resources>views>post>index.blade.php queda así:
@@ -757,10 +760,9 @@ php artisan route:list
 </body>
 </html>
 
-
 // Ya tenemos una Web que aplica un CRUD que funciona, aunque es muy sencillo y con un diseño muy básico 
 // Este tema ha servido para explicar conceptos básicos para confeccionar un CRUD
-// Hay que aplicar un diseño más avanzado, y que el Tailwindcss tenga efecto, se verá en los próximos temas
+// A partir de aquí, hay que aplicar un diseño más avanzado, y que el Tailwindcss tenga efecto, se verá en los próximos temas
 
 // Ejercicio: Repetir todo con Category y Tags. 
 
