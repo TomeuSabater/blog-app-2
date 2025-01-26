@@ -14,7 +14,7 @@ class CategoryControllerCRUD extends Controller
      */
     public function index()
     {
-        $categories = Category::all(); // Obtener todos los registros
+        $categories = Category::paginate(3); // Devuelve el resultado de 3 en 3
         return view('category.index',['categories' => $categories]); // Los mostramos con la View 
     }
 
@@ -38,8 +38,8 @@ class CategoryControllerCRUD extends Controller
         $category->url_clean = $request->url_clean;  
 
         $category->save(); 
-        
-        return back(); // Vuelve a la página anterior 
+
+        return redirect()->route('categoryCRUD.index')->with('status','<h1>Categoría creada correctamente</h1>'); // Salta a View index con mensaje
     }
 
 
@@ -76,6 +76,6 @@ class CategoryControllerCRUD extends Controller
     {
         // Eliminación del registro 
         $categoryCRUD->delete(); 
-        return back(); 
+        return back()->with('status','Categoría eliminada correctamente'); // Vuelve a página llamante con un mensaje 
     }
 }

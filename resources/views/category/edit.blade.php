@@ -9,16 +9,8 @@
     
     <h3>Edit Category</h3>
 
-    <!-- Si existen, mostramos los errores-->
-    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
+    <!-- Gestión de errores -->
+    @include('components.alert') <!-- Muestra la lista de errores -->
 
      <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
     <form action="{{ route('categoryCRUD.update', ['categoryCRUD' => $category->id ]) }}" method="post">

@@ -13,9 +13,9 @@
     @include('components.alert') <!-- Muestra la lista de errores -->
 
 
-     <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
+    <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
     
-     <form action="{{ route('postCRUD.update', ['postCRUD' => $post->id ]) }}" method="post">
+    <form action="{{ route('postCRUD.update', ['postCRUD' => $post->id ]) }}" method="post">
         @csrf <!-- Security Token -->	
         @method('PUT') <!-- Cambio de method a 'PUT', en caso contrario llamaría al show -->
         
@@ -39,5 +39,6 @@
 
         <input type="submit" value="Update" >
     </form>
+    
 </body>
 </html>

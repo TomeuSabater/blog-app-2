@@ -4,36 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Index Category</title>
+
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Mostramos estructura en formato Json vía consola para debug -->
+    <script>
+        var app = @json($categories);
+        console.log(app); 
+    </script>
+
 </head>
 <body>
 
     <h3>Index Category</h3>
 
-    <table border='1'>
-        @foreach ($categories as $category)
-            <tr>
-                <td>{{ $category->id }}</td>
-                <td>{{ $category->title }}</td>
-                <td>{{ $category->url_clean }}</td>
-                <td>{{ $category->created_at }}</td>
-                <td>{{ $category->updated_at }}</td>
-                <td>
-                    <form action="{{route('categoryCRUD.destroy', ['categoryCRUD' => $category->id ])}}" method="POST">
-                      @method('DELETE')
-                      @csrf <!-- Security tokein -->
-                      <button type="submit" class="btn tbn-danger btn-sm">Delete</button>
-                    </form> 
-                </td>
-                <td>
-                    <form action="{{route('categoryCRUD.show', ['categoryCRUD' => $category->id ])}}" method="GET">
-                      @method('GET')
-                      @csrf
-                      <button type="submit" class="btn tbn-danger btn-sm">Show</button>
-                    </form> 
-                </td> 
-            </tr>
-        @endforeach
-    </table>
+    <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
+    <!-- el if es necesario puesto que la primera vez no tendremos status -->
+    @if (session('status'))
+        <div class="alert alert-primary role='alert'">
+            {!! session('status') !!}
+        </div>
+    @endif
+
+    <!-- Se muestran los elementos en forma de Card -->
+    <div class="row row-cols-1 row-cols-md-3 g-4 ">
+        @each('components.card-categories',$categories,'category')
+        {{ $categories->links() }} <!-- Paginación -->
+    </div>
 
 </body>
 </html>

@@ -12,9 +12,11 @@
         console.log(app); 
     </script>
 
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 <body>
-
 
     <h3>Index Post</h3>
 
@@ -23,16 +25,22 @@
     @endfor
 
     <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
+    <!-- el if es necesario puesto que la primera vez no tendremos status -->
     @if (session('status'))
         <div class="alert alert-primary role='alert'">
             {!! session('status') !!}
         </div>
     @endif
 
+    <!-- Se muestran los elementos en forma de Card -->
+    <div class="row row-cols-1 row-cols-md-3 g-4 ">
+        @each('components.card-posts',$posts,'post');
+    </div>
+
     <table border='1'>
         @foreach ($posts as $post)
             <tr>
-                <td>{{ $post->id }}</td>
+                <td>{{ $post->id }} -- {{ $loop->index }}</td>
                 <td>{{ $loop->index }}</td>
                 <td>{{ $post->title }}</td>
                 <td>{{ $post->posted }}</td>

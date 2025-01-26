@@ -20,18 +20,9 @@
 
     @include('components.alert') <!-- Muestra la lista de errores -->
 
-    <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
-    @if (session('status'))
-        <div class="alert alert-primary role='alert'">
-            {!! session('status') !!}
-        </div>
-    @endif
-
-
-     <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
-    
-     <h3>Create Post</h3>
-     <form action="{{ route('postCRUD.store') }}" method="post">
+    <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
+    <h3>Create Post</h3>
+    <form action="{{ route('postCRUD.store') }}" method="post">
         @csrf <!-- Security Token -->	
         
         <label for="title">Títol</label>
