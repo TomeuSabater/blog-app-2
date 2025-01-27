@@ -43,7 +43,7 @@ class PostControllerCRUD extends Controller
         
         // dd($posts); // volcado del resultado 
 
-        $posts = Post::all(); // Obtención de todas las publicaciones en variable $posts
+        $posts = Post::paginate(3); // Obtención de todas las publicaciones en variable $posts
         return view('post.index',['posts' => $posts]);  // Llamada a la View pasando $posts en 'posts' para maquetar el resultado
     }
 

@@ -404,9 +404,7 @@ http://blog-app.test/categoryCRUD
 
 
 
-*********************    LUNES 27 
-
-///////////////////////////////////////// COMPONENTS
+/////////////////////////  COMPONENTES
 
 //////////////// ANONYMOUS COMPONENTS
 
@@ -667,6 +665,7 @@ Showing 7 to 9 of 11 results « Previous Next »
 //      para poder pasar info adicional, esto nos da mucha más flexibilidad.
 // Los COMPONENTES ANONIMOS (Anonymous Components) resources>views>components>xxx.blade.php son los componentes que hemos creado hasta ahora
 
+aquí para martes --- 28 
 
 //////////////// CLASS BASED COMPONENTS
 
@@ -680,9 +679,8 @@ Showing 7 to 9 of 11 results « Previous Next »
 
 // Comprobarlo en: 
 app\View\Components\messages.php // Es un Componente con el código estándard de Component
-resources\views\components/messages.blade.php // Es una View vacía
+resources\views\components/messages.blade.php // Es una View vacía; con el mensaje del día
 
-// En el Component, una vez que esté todo montado, hace el render llamando al messages.blade.php
 
 // Modificamos la View vacía que ha generado en resources>views>components>messages.blade.php de la siguiente manera
 <div class="alert alert-primary">
@@ -692,8 +690,7 @@ resources\views\components/messages.blade.php // Es una View vacía
 
 // Como hemos creado un Component, lo podemos llamar de varias maneras
 //	    pero este tipo llamada está restringido a Class Based Components o Components creados con el make 
-// Vamos al index.blade.php de Post (y Categories) en resources>views>post>index.blade.php y añadir código:
-
+// Vamos al index.blade.php de Post y Categories en resources>views>post>index.blade.php y añadir código:
 
     @component('components.messages')
     @endcomponent
@@ -705,8 +702,8 @@ resources\views\components/messages.blade.php // Es una View vacía
     </div>
 
 // Probarlo con 
-http://example-app.test/postCRUD
-http://blog-app.test/categoryCRUD
+http://<example-app.test>/postCRUD
+http://<blog-app.test>/categoryCRUD
 
 // Otra manera de llamar al Component es como sigue:
 //	comentar la llamda anterior y codifica así
@@ -722,8 +719,7 @@ http://blog-app.test/categoryCRUD
 // Puede ser muy útil, porque tenemos el control de Component y podemos poner el código que deseemos
 // El make:component crea un Class Based Components (class messages extends Component{...})
 // Los Anonymous Component los podemos crear directamente, sin el make:component. 
-// Un Class Based Component podemos procesar los datos recibidos.
-
+// Un Class Based Component podemos procesar los datos recibidos, son más flexibles
 
 // Ahora que hemos construído un Class Based Component, veamos cómo pasarle valores y tratar el valor
 // Por ejemplo: 

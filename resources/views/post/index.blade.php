@@ -35,6 +35,7 @@
     <!-- Se muestran los elementos en forma de Card -->
     <div class="row row-cols-1 row-cols-md-3 g-4 ">
         @each('components.card-posts',$posts,'post');
+        {{ $posts->links() }} <!-- Paginación -->
     </div>
 
     <table border='1'>
