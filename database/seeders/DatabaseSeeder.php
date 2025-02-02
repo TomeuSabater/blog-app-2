@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         // Sería más correcto tener un  $this->call(UserSeeder::class); 
         $AdminUser = new User(); // Creamos un objeto de tipo User
             $AdminUser->name = "Tomeu"; // Asignamos name
-            $AdminUser->email ="bmsabater@gmail.com"; // Asignamos emial
+            $AdminUser->email ="bmesabater@gmail.com"; // Asignamos email
             $AdminUser->role="superjefetop"; //Asignamos role
             $AdminUser->password=Hash::make('12345678'); // Asignamos password
         $AdminUser->save(); // Creamos la tupla 
