@@ -962,6 +962,7 @@ http://blog-app.test/categoryCRUD
 
 // Y luego en message.blade.php, modificarlo para extraer y usar el attribute 'style' que acabamos de crear:
 //	se usa {{$attributes}}
+
 <div class="alert alert-primary">
     {{$attributes}}
     {{$type}}
@@ -1149,7 +1150,7 @@ http://blog-app.test/categoryCRUD
 // Volviendo a los Anonymous Component, que son los que creamos al principio
 // Recordar el Anonymous Component en resources>views>components>alert.blade.php
 // Que ahora se invoca con el @include('components.alert') en create.blade.php
-// 	pero se podría invoar también con <x-alert /> y aplicar mismos criterios
+// 	pero se podría invocar también con <x-alert /> y aplicar mismos criterios
 //	obviamente, al no ser un Class Based Componet no podemos crear métodos
 // Probarlo así, comentando el include original (create.blade.php)
 
@@ -1252,7 +1253,7 @@ http://example-app.test/postCRUD/create
 // CLASS BASED COMPONENTS -> Adecuados para pasar valores y renderizar según estos valores (evolución de los Anonymous Components)
 // DYNAMIC COMPONENTS -> Adecuados para usar un u otro Component dependiendo de valores en ejecución (evolución de los Class Based)
 
-
+***************** Aquí para la clase del 4/Feb
 
 ///////////////////////////////////////////// LAYOUT
 

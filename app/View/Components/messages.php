@@ -16,6 +16,12 @@ class messages extends Component
         //
     }
 
+    public function majuscules($v) {
+
+        // Pasa a mayúsculas
+        return strtoupper($v); 
+    }
+
     /**
      * Get the view / contents that represent the component.
      */

@@ -17,8 +17,8 @@
     @else
         <h2>No tenim cap error</h2> 
     @endif
-
-    @include('components.alert') <!-- Muestra la lista de errores -->
+   
+    <x-alert />
 
      <!-- En caso contrario, mostramos el formulario, es llamada inicial -->
     <form action="{{ route('categoryCRUD.store') }}" method="post">

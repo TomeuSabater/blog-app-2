@@ -27,8 +27,11 @@
         </div>
     @endif
 
-    @component('components.messages',['type' => 'danger'])
-    @endcomponent
+     <!-- Llamada a un class component -->
+     @component('components.messages',['type' => 'warning'])
+        @slot('title','Esto es una alerta')
+        @slot('slot','Este texto lo mostrará donde haya puesto el slot en el componente')
+    @endcomponent 
 
     <!-- Se muestran los elementos en forma de Card -->
     <div class="row row-cols-1 row-cols-md-3 g-4 ">

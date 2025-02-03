@@ -32,6 +32,56 @@
         </div>
     @endif
 
+
+    @php
+        $componentName = "messages";
+    @endphp
+
+    @php
+        $error = 'success';
+    @endphp
+
+    <x-dynamic-component :component="$componentName" type="{{$error}}" style="background-color: coral">
+        <x-slot name="title" >
+            <h1 class="alert-heading" >Este es el título dynamic-component</h1>
+        </x-slot>
+        <x-slot name="mayusculas">
+            Hola que tal 
+        </x-slot>
+        Este es un aviso success. Que viene de un dynamic-component
+    </x-dynamic-component>
+
+
+    @php
+        $error = 'danger';
+    @endphp
+
+    <x-messages type="{{$error}}" style="background-color: coral">
+        <x-slot name="title">
+          <h1 class="alert-heading" >Este es el título</h1>
+        </x-slot>
+        <x-slot name="mayusculas">
+            Hola que tal 
+        </x-slot>
+        Este texto lo mostrará donde haya puesto el slot genérico en el componente
+    </x-messages>
+
+    @php
+        $error = 'warning';
+    @endphp
+
+    <x-messages :type="$error" style="background-color: coral">
+        <x-slot name="title">
+            <h1 class="alert-heading">Esto es un Warning</h1>
+        </x-slot>
+        <x-slot name="mayusculas">
+        </x-slot>
+        Este texto lo mostrará donde haya puesto el slot en el componente
+    </x-messages>
+
+
+
+
     <!-- Se muestran los elementos en forma de Card -->
     <div class="row row-cols-1 row-cols-md-3 g-4 ">
         @each('components.card-posts',$posts,'post');
