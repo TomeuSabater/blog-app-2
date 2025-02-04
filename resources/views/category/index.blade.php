@@ -1,43 +1,26 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index Category</title>
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+<x-app-layout>
 
-    <!-- Mostramos estructura en formato Json vía consola para debug -->
-    <script>
-        var app = @json($categories);
-        console.log(app); 
-    </script>
+    <!-- Header de listado de Categories -->
+<x-slot name="header">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{ __('Listado de Categorías') }}
+    </h2>
+</x-slot>
 
-</head>
-<body>
+    <!-- Listado de Categories -->
+<div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6 text-gray-900">
+                
+                <!-- Se muestran los elementos en forma de Card -->
+                @each('components.card-categories',$categories,'category') <!-- Listado de Categorías -->
+                {{ $categories->links() }} <!-- Paginación -->
 
-    <h3>Index Category</h3>
-
-    <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
-    <!-- el if es necesario puesto que la primera vez no tendremos status -->
-    @if (session('status'))
-        <div class="alert alert-primary role='alert'">
-            {!! session('status') !!}
+            </div>
         </div>
-    @endif
-
-     <!-- Llamada a un class component -->
-     @component('components.messages',['type' => 'warning'])
-        @slot('title','Esto es una alerta')
-        @slot('slot','Este texto lo mostrará donde haya puesto el slot en el componente')
-    @endcomponent 
-
-    <!-- Se muestran los elementos en forma de Card -->
-    <div class="row row-cols-1 row-cols-md-3 g-4 ">
-        @each('components.card-categories',$categories,'category')
-        {{ $categories->links() }} <!-- Paginación -->
     </div>
+</div>
 
-</body>
-</html>
+</x-app-layout>
