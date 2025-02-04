@@ -15,6 +15,19 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    <!-- Links para Publicaciones -->
+                    <x-nav-link :href="route('postCRUD.index')" :active="request()->routeIs('postCRUD.index')">
+                        {{ __('Publicaciones') }}
+                    </x-nav-link>
+
+                    <!-- Links para Categorias -->
+                    <x-nav-link :href="route('categoryCRUD.index')" :active="request()->routeIs('categoryCRUD.index')">
+                        {{ __('Categorias') }}
+                    </x-nav-link>
+
+
+
                 </div>
             </div>
 
@@ -67,9 +80,23 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            <div class="pt-2 pb-3 space-y-1">
+                <x-responsive-nav-link :href="route('postCRUD.index')" :active="request()->routeIs('postCRUD.index')">
+                    {{ __('Publicaciones') }}
+                </x-responsive-nav-link>
+            </div>
+    
+            <div class="pt-2 pb-3 space-y-1">
+                <x-responsive-nav-link :href="route('categoryCRUD.index')" :active="request()->routeIs('categoryCRUD.index')">
+                    {{ __('Categorias') }}
+                </x-responsive-nav-link>
+            </div>
+
         </div>
 
         <!-- Responsive Settings Options -->
