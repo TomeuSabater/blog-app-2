@@ -1,0 +1,323 @@
+///////////////////////////////////////////////////////////
+Finalización del CRUD
+
+	- Navegación 
+    - CKEditor 
+	- Relaciones (de entidades) y Middleware
+	- Relaciones: 1:1, 1:N, N:M (Desplegables)
+
+
+///////////////////////////////////////////////////////////
+
+
+// Acceder al dashboard y loginearse 
+http://<blog-app.test>/
+http://<blog-app.test>/dashboard (bmesabater@gmail.com / 12345678) 
+
+// Veamos la parte de los LAYOUT
+// Ahora mismo, ya tenemos las pantalla del CRUD más o menos bonitas y con un diseño uniforme. 
+//	ante cualquier cambio, recordar siempre compilar el css de tailwindcss
+
+λ npm run dev (Durante el desarrollo)
+λ npm run build (Antes de la subida a producción) 
+
+// Vamos a crear los link para nuestro CRUD en el menú de opciones
+// 	ahora mismo, para acceder, debemos tecleamos el enlace directamente.  
+// Hay que incluir el código de los link en 
+//	resources>views>layouts>navigation.blade.php
+
+// Observar que hay el siguiente código al inicio, en la primera línea
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+
+// Hay una variable 'open' que le asignamos el valor 'false' 
+// Este 'open' se usa más abajo mismo código para (en Hamburger) 
+	<button @click="open = ! open" class="inline-flex ...
+		...
+		<path :class="{'hidden': open, 'inline-flex': ! open }" ... 
+		<path :class="{'hidden': ! open, 'inline-flex': open }" ... 
+
+// El Hamburger, es el menú hamburguesa, el que aparece de manera responsiva cuando la página es más pequeña (probarlo)
+// 	es el menú de tres línea.  
+            <div class="-me-2 flex items-center sm:hidden">
+
+// Vamos a poner los enlaces; habrá dos tipos de enlace:
+// 	Cuando la página sea completa, que ocupa toda la pantalla y hay espacio para el menú normal
+// 	Cuando la página sea minimizada, ocupa pantalla pequeña y se aplica el efecto responsivo
+// El código es el siguiente:
+
+// Identificar la ubicación de  <!-- Navigation Links --> dentro de navigation.blade.php
+// Observar la estructura  <x-nav-link... recordar que esto es un Component, 
+//	verlo en resources>views>components>nav-link.blade.php
+// Confeccionar el siguiente código (con enlaces iniciales a la lista de items)
+
+                <!-- Navigation Links -->
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
+
+                    <!-- Links para Publicaciones -->
+                    <x-nav-link :href="route('postCRUD.index')" :active="request()->routeIs('postCRUD.index')">
+                        {{ __('Publicaciones') }}
+                    </x-nav-link>
+
+                    <!-- Links para Categorias -->
+                    <x-nav-link :href="route('categoryCRUD.index')" :active="request()->routeIs('categoryCRUD.index')">
+                        {{ __('Categorias') }}
+                    </x-nav-link>
+
+                </div>
+
+// Probarlo con 
+http://blog-app.test/ (pulsar sobre dashboard o loginearse)
+http://blog-app.test/dashboard
+
+// Minimizar pantalla para comprobar como queda la responsividad-> Todavía no funciona, no hemos creado enlaces responsivos
+
+// Y observar que en la cabezera, ahora aparecen las entradas; Dashboard / Publicaciones / Categorias
+// Ir pulsando y podremos cambiar de pantalla, obviamente Publicaciones o Categorias 
+//	te lleva a la primera página de la lista de Publicaciones o Categorias
+// Fijarse también que la pantalla, en este menú, sale como 'activa' (resaltado y subrayado). 
+
+// Ver como si se minimiza la pantalla, los enlaces no aparecen, no hemos añadido todavía el código para efecto responsivo 
+// Hay que añadir los links en :     
+
+<!-- Responsive Navigation Menu -->
+
+// En esta zona del código vemos otro componente  
+<x-responsive-nav-link ... > 
+// que podemos inspeccionarlo en resources>views>components>responsive-nav-link.blade.php
+
+// En navigation.blade.php en <!-- Responsive Navigation Menu --> 
+// 	añadir el siguiente código, justo después de la entrada de Dashboard 
+
+        <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('postCRUD.index')" :active="request()->routeIs('postCRUD.index')">
+                {{ __('Publicaciones') }}
+            </x-responsive-nav-link>
+        </div>
+
+        <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('categoryCRUD.index')" :active="request()->routeIs('categoryCRUD.index')">
+                {{ __('Categorias') }}
+            </x-responsive-nav-link>
+        </div>
+
+// Probarlo ahora forzando la responsividad. 
+// Comprobar que el menú hamburguesa contiene la navegación 
+http://<blog-app.test>/dashboard
+
+
+///////////////////////////  CKEditor
+
+
+//// Hagamos dos cosas 'especiales' 
+//// Vamos a instalar el CKEditor (https://ckeditor.com/) que es un editor de texto en formato WYSIWYG que permite escribir contenido directamente dentro de 
+//// las páginas web o aplicaciones en línea. Su código está escrito en JavaScript (es una librería JS) i está desarrollado por CKSource (https://cksource.com/)
+//// Esto nos permitirá 'tratar' el texto, por ejemplo, el texto de las Publicaciones en el textarea, cuando las creamos / editamos, tener una herramienta
+//// que nos permitan tratar el texto. 
+//// El CKEditor no es el único que existe, se pueden poner otros (desconozco cómo y cuáles) 
+//// En fin, veámoslo:
+
+
+
+///////////////////////////////////////   INSTALACIÓN ORIGINAL DEL CKEDITOR
+
+
+(Starting from version 44.0.0, the licenseKey property is required to use the editor) 
+
+
+
+λ npm install --save @ckeditor/ckeditor5-build-classic
+λ npm audit fix // Esto porque me ha dado un mensaje de vulnerabilites con 1 high y me recomienda este comando para el fix
+found 0 vulnerabilities
+
+// Vamos a comprobar si lo tenemos 
+// En package.json observamos lo siguiente 
+    "dependencies": {
+        "@ckeditor/ckeditor5-build-classic": "^43.1.1"
+    }
+
+// No hemos acabado, hay que compilar esta dependencia
+// En resources/js crear el archivo ckeditor.js 
+// resources/js/ckeditor.js que contiene lo siguiente:
+
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
+ClassicEditor
+    .create( document.querySelector( '#editor' ) )
+    .then( editor => {
+        console.log( editor );
+    } )
+    .catch( error => {
+        console.error( error );
+    } );
+
+// Básicamente estamos diciendo que cualquier elemento de nuestro sistema que sea #editor le añadirá una barra de
+// 	utilidades para formatear el texto. 
+// No hemos acabado, al vite (compilador) hay que indicarle que incluya el ckeditor.js
+// Editar el vite.config.js y añadirle la siguiente entrada 
+//  'resources/js/editorjs.js'
+// Este vite.config.js indica js y css que "minificará" en el apartado public de nuestro proyecto 
+// Queda así 
+
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+                'resources/js/ckeditor.js',
+            ],
+            refresh: true,
+        }),
+    ],
+});
+
+// Ahora ir al vite y cargarlo
+// resources>views>layout>app.blade.php identificar la zona  <!-- Scripts -->
+// Modificarlo como sigue 
+
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js','resources/js/ckeditor.js'])
+
+// Finalmente, ultimo paso y no olvidarlo
+λ npm run dev
+λ npm run build
+
+// Probarlo accediendo al dashboard, no debería dar un error
+// Si da algún error comprobar los pasos y sobre todo, las rutas. 
+
+http://blog-app.test/dashboard
+
+/////////////////////////////////////// FIN INSTALACIÓN ORIGINAL DEL CKEDITOR
+
+/////////////////////////////////////// PRUEBAS PORQUE LA INSTALACIÓN ORIGINAL NO FUNCIONA
+
+Lo que hago paso a paso 
+
+- Bajar el ZIP de https://ckeditor.com/ckeditor-5/download/#zip 
+- Descomprimo 
+
+- Creo el public>assets>vendor
+- Vuelco dentro los dos archivos descomprimidos
+ckeditor5.js
+ckeditor5.css
+index.html 
+- Abro la index 
+
+- Copio el tag link de abajo en resources>views>layouts>app.blade.php
+- teniendo cuidado de que la ruta sea la correcta
+original <link rel="stylesheet" href="../ckeditor5/ckeditor5.css">
+quedaría así <link rel="stylesheet" href="../../../public/assets/vendor/ckeditor5.css">
+
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        <title>{{ config('app.name', 'Laravel') }}</title>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+        <!-- CKEditor -->
+        <link rel="stylesheet" href="../../../public/assets/vendor/ckeditor5.css">
+
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js','resources/js/ckeditor.js'])
+
+    </head>
+
+
+- meter el siguiente script en la página que tiene el CKEDITOR
+- Otra vez, mucho cuidadito en las referencias de los ficheros. 
+- Yo he puesto esto en la view de create.
+
+ <script type="importmap">
+            {
+                "imports": {
+                    "ckeditor5": "../../public/assets/vendor/ckeditor5.js",
+                    "ckeditor5/": "../../public/assets/vendor/"
+                }
+            }
+        </script>
+        <script type="module">
+            import {
+                ClassicEditor,
+                Essentials,
+                Paragraph,
+                Bold,
+                Italic,
+                Font
+            } from 'ckeditor5';
+
+            ClassicEditor
+                .create( document.querySelector( '#editor' ), {
+                    licenseKey: 'GPL',
+                    plugins: [ Essentials, Paragraph, Bold, Italic, Font ],
+                    toolbar: [
+                        'undo', 'redo', '|', 'bold', 'italic', '|',
+                        'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
+                    ]
+                } )
+                .then( editor => {
+                    window.editor = editor;
+                } )
+                .catch( error => {
+                    console.error( error );
+                } );
+        </script>
+
+
+/////////////////////////////////////// PRUEBAS PORQUE LA INSTALACIÓN ORIGINAL NO FUNCIONA
+
+
+// Vampos por fin a utilizarlo, hasta ahora lo que hemos hecho ha sido incluir librerias en el código html que se genera
+// En resources>views>post>create.blade.php idnetificar el textarea y modificarlo como sigue añadiendo el id="editor" 
+
+<textarea id="editor" name="content" col="3" ></textarea>
+
+// El resources>js>ckeditor.js, que es un js, buscará todos los elementos con id="editor" para añadirles la borra de formato
+// Vamos a crear un post (recordar arrancar el npm run dev para que todo funcione)
+
+λ npm run dev
+http://example-app.test/postCRUD/create
+
+
+// Creamos una publicación utilizando el CKEditor, si en la lista aparece el código html en lugar de la 
+// interpretación de ese código, recordar el {!! $variable !!} en lugar de un {{ $variable }}, 
+// Por ejemplo, en la resource>views>post>edit.blade.php <textarea name="content" col="3">{!!$post->content!!}</textarea>
+// No me funciona muy bien, no me hace ningún caso. 
+// A ver, en resources>views>components>cards-posts.blade.php cambiar esto:
+
+// Original
+<p class="mb-4 text-base">{{ $post->content }}</p>
+// Nuevo 
+<p class="mb-4 text-base">{!! $post->content !!}</p>
+
+
+// Y ahora sale bien, pero como habíamos metido un montón de código html mediante el factory, hay algunos que salen fatal
+// Borro todos las publicaciones que metió el factory con código html porque se vuelve loco e intenta crear una página html
+// Y ahora SI se ve el formato y no el código html del formato. 
+// De todas maneras, mucho ojo, porque estamos en Tailwind y los código html que insertes se renderizarán según Tailwind
+// Por ejemplo, si pones un H2 se verá el H2 de Tailwind, no renderizará según html estándar. 
+// Se puede arreglar en la configuraciones de CKEditor (para alumnos pros)
+
+// Ahora el problema que tengo es que el el create se ve mal renderizado, habría que poner los campos uno debajo de otro
+// No sé como hacerlo, habría que mirar tailwind y cambiar las clases. 
+// Al final he editato el resourves>views>post>create.blade.php y he añadido unos <div></div> para cada input dentro del <form>
+// Más adelante digo como resolverlo y renderizar correctamente para tener una presentación mejor hecha. 
+
+// Hacer pruebas creando una tabla, etc. Podrías crear una estructura completa, por ejemplo, una página html (no lo he probado) 
+// Según CKEditor si subes una foto la textualiza (creo no lo he probado) 
+
+////////////////////////////  CKEditor
+
