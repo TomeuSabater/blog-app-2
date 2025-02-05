@@ -17,31 +17,6 @@ class PostControllerCRUD extends Controller
      */
     public function index()
     {
-        // Ejemplos ELOQUENT
-        // $posts = Post::all(); // Donde Post es la class de la tabla posts y all() es obtener todos los registros
-        // $posts = Post::find(1); // Busca registro con la PK = 1 
-        // $posts = Post::find([1, 3]); // Busca registro con la PK = 1, PK = 3
-
-        // Aplicamos un WHERE
-        // $posts = Post::where('posted','=','not')->get(); // Where posted=not
-        // $posts = Post::where('posted','not')->where('id','>',2)->get(); // Where (posted = not) AND (id > 2); 
-        // $posts = Post::where('posted2','not')->where('id','>',2)->get(); // Where (posted = not) AND (id > 2); // tiene error
-        // $posts = Post::where('posted','not')->orWhere('id','>',2)->get(); // Where (posted = not) OR (id > 2)
-        // $posts = Post::where('posted','yes')
-        //     ->orwhere(function($query) {
-        //             $query->where('posted','not')
-        //            ->where('category_id','2');
-        //     })->get();
-        // $posts = Post::where('posted','not')->where('id','>',2)->first(); // Where (posted = not) OR (id > 2) y solo el primero 
-        // $posts = Post::where('posted','not')->orderBy('id','desc')->get(); // Ordenado
-
-        // SELECT sobre conjunto de campos
-        // $posts = Post::select('title','url_clean','content')->get(); // Extracción de columnas específicas 
-
-        // Salida simplificada
-        // $posts = Post::pluck('title','url_clean'); // Simplifica la salida, solamente los valores 
-        
-        // dd($posts); // volcado del resultado 
 
         $posts = Post::paginate(3); // Obtención de todas las publicaciones en variable $posts
         return view('post.index',['posts' => $posts]);  // Llamada a la View pasando $posts en 'posts' para maquetar el resultado
@@ -52,17 +27,10 @@ class PostControllerCRUD extends Controller
      */
     public function create()
     {
-        // Ejemplos de SQL DIRECTO
-        // $user = DB::select('select * from users');
-        // $user = DB::select('select * from users where id = :id', ['id' => 1]); 
-
-        // Ejemplos con el QUERY BUILDER 
-        // $user = DB::table('users')->where('role','admin')->get(); // Ejemplo con where x = y
-        // $user = DB::table('users')->where('role','!=','admin')->get(); // Ejemplo con where x != y
-
-        // dd($user);  // para ver la respuesta del select anterior
         
-        return view('post.create'); // Llama a la vista create.blade.php que muestra el formulario de creación
+        //$categories = Category::all(); // Recuperamos las categorías para asignarlas en el create
+        $categories = Category::pluck('id','title'); // Recuperamos las Category, solamente los campos que nos interesan 
+        return view('post.create', ['categories' => $categories]); // Llama a la vista create.blade.php con Categories  
     }
 
     /**
@@ -70,23 +38,7 @@ class PostControllerCRUD extends Controller
      */
     public function store(GuardarPostRequest $request)
     {
-
-       // echo "estoy en function store() de PostControllerCrud<br>"; 
-
-       // echo 'Title = '.$request->input('title').'<br>';
-       // echo 'Title = '.$request->title.'<br>';
-       // echo 'Title = '.request('title'); 
-    
-        // Validación de los input del formulario
-        // $request->validate([
-        //   'title' => 'required|unique:posts|min:5|max:255',
-        // ]);
-
-          // dd($request); // Desgrana el $request y lo pinta en pantalla
-
-
-        // Si las validaciones son OK, entonces se debe proceder al insert en la DDBB
-        
+       
         $post = new Post; 
 
         $post->title = $request->title;
@@ -98,28 +50,16 @@ class PostControllerCRUD extends Controller
 
         $post->save(); 
 
-        // return back(); // Vuelve a la página anterior 
-        // return back()->with('status', 'Publicación creada correctamente'); 
-        return redirect()->route('postCRUD.index')->with('status','<h1>Publicación creada correctamente</h1>'); 
+        return redirect()->route('postCRUD.index'); 
     }
 
     /**
      * Display the specified resource.
      */
-
-     
-     /** 
-    * public function show(string $id)
-    * {
-    * 
-    *    // $posts = Post::find($id); // Extrae registro con PK = id
-    *    $posts = Post::findorfail($id); // Genera una respuesta http de error en caso de not found. Un 404
-    *    return view('post.show',['post'=>$posts]); // // Recordar crear la vista 
-    * }
-    */
-    
     public function show(Post $postCRUD)
     {
+
+        // $cat = Category::where('id', $postCRUD->category_id); 
         return view('post.show',['post' => $postCRUD]);  // El nombre del parámetro en la llamada es postCRUD/{postCRUD}  
     }
     
@@ -137,12 +77,6 @@ class PostControllerCRUD extends Controller
      */
     public function update(ActualizarPostRequest $request, Post $postCRUD)
     {
-        // $postCRUD->title = $request->title; // Actualiza el 'title' por el que viene en request
-        // $postCRUD->url_clean = $request->url_clean; // Actualiza la 'url_clean' por la que viene en request
-        // $postCRUD->content = $request->content; // Actualiza el 'content' por el que viene en request
-    
-        // $postCRUD-> update(); //Actualizamos el registro de la DDBB 
-        // return back(); // Vuelve a la página origen, y carga el registro actualizado
 
         $postCRUD-> update($request->all()); //Actualizamos el registro de la DDBB 
         return back(); // Vuelve a la página origen, y vuelve a cargar el registro actualizado

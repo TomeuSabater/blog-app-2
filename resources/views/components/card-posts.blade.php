@@ -4,6 +4,7 @@
         <h5 class="mb-2 text-xl font-medium leading-tight">{{ $post->title }}</h5>
         <h3 class="mb-2 text-xl font-medium leading-tight">{{ $post->url_clean }}</h3>
         <p class="mb-4 text-base">{{ $post->content }}</p>
+        <p class="mb-4 text-sm">user: {{$post->user->name}}</p>
         <p class="mb-4 text-sm">posted: {{ $post->posted }}</p>
         <p class="mb-4 text-sm">created at: {{ $post->created_at }}</p>
         <p class="mb-4 text-sm">updated at: {{ $post->updated_at }}</p>

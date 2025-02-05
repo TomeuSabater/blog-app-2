@@ -30,13 +30,6 @@
                             @enderror                  
                         </div>
 
-                        <div class="mb-3">
-                            <label for="content">Contingut</label>
-                            <textarea style="@error('content') border-color:RED; @enderror" name="content" col="3" class="mt-1 block w-full"></textarea>
-                            @error('content')
-                                <div>{{$message}}</div>
-                            @enderror
-                        </div>
 
                         <div class="mb-3">
                             <label for="posted" class="form-label">Publicat</label>
@@ -45,7 +38,15 @@
                                 <option value="not">No</option>
                             </select>
                         </div>
-                       
+
+                        <div class="mb-3">
+                            <label for="content">Contingut</label>
+                            <textarea style="@error('content') border-color:RED; @enderror" name="content" col="3" class="mt-1 block w-full"></textarea>
+                            @error('content')
+                                <div>{{$message}}</div>
+                            @enderror
+                        </div>
+
                         <div>
                             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Crear</button>
                         </div>

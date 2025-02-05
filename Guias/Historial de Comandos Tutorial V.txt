@@ -117,170 +117,18 @@ http://<blog-app.test>/dashboard
 //// las páginas web o aplicaciones en línea. Su código está escrito en JavaScript (es una librería JS) i está desarrollado por CKSource (https://cksource.com/)
 //// Esto nos permitirá 'tratar' el texto, por ejemplo, el texto de las Publicaciones en el textarea, cuando las creamos / editamos, tener una herramienta
 //// que nos permitan tratar el texto. 
-//// El CKEditor no es el único que existe, se pueden poner otros (desconozco cómo y cuáles) 
-//// En fin, veámoslo:
-
+//// El CKEditor no es el único que existe, se pueden poner otros 
+//// Veámoslo:
 
 
 ///////////////////////////////////////   INSTALACIÓN ORIGINAL DEL CKEDITOR
 
-
-(Starting from version 44.0.0, the licenseKey property is required to use the editor) 
-
+****** Este plugin a cambiado el método de instalación en Laravel 
 
 
-λ npm install --save @ckeditor/ckeditor5-build-classic
-λ npm audit fix // Esto porque me ha dado un mensaje de vulnerabilites con 1 high y me recomienda este comando para el fix
-found 0 vulnerabilities
+/////////////////////////////////////// PRUEBAS CKEDITOR 
 
-// Vamos a comprobar si lo tenemos 
-// En package.json observamos lo siguiente 
-    "dependencies": {
-        "@ckeditor/ckeditor5-build-classic": "^43.1.1"
-    }
-
-// No hemos acabado, hay que compilar esta dependencia
-// En resources/js crear el archivo ckeditor.js 
-// resources/js/ckeditor.js que contiene lo siguiente:
-
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
-ClassicEditor
-    .create( document.querySelector( '#editor' ) )
-    .then( editor => {
-        console.log( editor );
-    } )
-    .catch( error => {
-        console.error( error );
-    } );
-
-// Básicamente estamos diciendo que cualquier elemento de nuestro sistema que sea #editor le añadirá una barra de
-// 	utilidades para formatear el texto. 
-// No hemos acabado, al vite (compilador) hay que indicarle que incluya el ckeditor.js
-// Editar el vite.config.js y añadirle la siguiente entrada 
-//  'resources/js/editorjs.js'
-// Este vite.config.js indica js y css que "minificará" en el apartado public de nuestro proyecto 
-// Queda así 
-
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-
-export default defineConfig({
-    plugins: [
-        laravel({
-            input: [
-                'resources/css/app.css',
-                'resources/js/app.js',
-                'resources/js/ckeditor.js',
-            ],
-            refresh: true,
-        }),
-    ],
-});
-
-// Ahora ir al vite y cargarlo
-// resources>views>layout>app.blade.php identificar la zona  <!-- Scripts -->
-// Modificarlo como sigue 
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js','resources/js/ckeditor.js'])
-
-// Finalmente, ultimo paso y no olvidarlo
-λ npm run dev
-λ npm run build
-
-// Probarlo accediendo al dashboard, no debería dar un error
-// Si da algún error comprobar los pasos y sobre todo, las rutas. 
-
-http://blog-app.test/dashboard
-
-/////////////////////////////////////// FIN INSTALACIÓN ORIGINAL DEL CKEDITOR
-
-/////////////////////////////////////// PRUEBAS PORQUE LA INSTALACIÓN ORIGINAL NO FUNCIONA
-
-Lo que hago paso a paso 
-
-- Bajar el ZIP de https://ckeditor.com/ckeditor-5/download/#zip 
-- Descomprimo 
-
-- Creo el public>assets>vendor
-- Vuelco dentro los dos archivos descomprimidos
-ckeditor5.js
-ckeditor5.css
-index.html 
-- Abro la index 
-
-- Copio el tag link de abajo en resources>views>layouts>app.blade.php
-- teniendo cuidado de que la ruta sea la correcta
-original <link rel="stylesheet" href="../ckeditor5/ckeditor5.css">
-quedaría así <link rel="stylesheet" href="../../../public/assets/vendor/ckeditor5.css">
-
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- CKEditor -->
-        <link rel="stylesheet" href="../../../public/assets/vendor/ckeditor5.css">
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js','resources/js/ckeditor.js'])
-
-    </head>
-
-
-- meter el siguiente script en la página que tiene el CKEDITOR
-- Otra vez, mucho cuidadito en las referencias de los ficheros. 
-- Yo he puesto esto en la view de create.
-
- <script type="importmap">
-            {
-                "imports": {
-                    "ckeditor5": "../../public/assets/vendor/ckeditor5.js",
-                    "ckeditor5/": "../../public/assets/vendor/"
-                }
-            }
-        </script>
-        <script type="module">
-            import {
-                ClassicEditor,
-                Essentials,
-                Paragraph,
-                Bold,
-                Italic,
-                Font
-            } from 'ckeditor5';
-
-            ClassicEditor
-                .create( document.querySelector( '#editor' ), {
-                    licenseKey: 'GPL',
-                    plugins: [ Essentials, Paragraph, Bold, Italic, Font ],
-                    toolbar: [
-                        'undo', 'redo', '|', 'bold', 'italic', '|',
-                        'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
-                    ]
-                } )
-                .then( editor => {
-                    window.editor = editor;
-                } )
-                .catch( error => {
-                    console.error( error );
-                } );
-        </script>
-
-
-/////////////////////////////////////// PRUEBAS PORQUE LA INSTALACIÓN ORIGINAL NO FUNCIONA
-
-
-// Vampos por fin a utilizarlo, hasta ahora lo que hemos hecho ha sido incluir librerias en el código html que se genera
+// Vampos por fin a utilizarlo, hasta ahora lo que hemos hecho ha sido incluir librerias en el código html necesarias
 // En resources>views>post>create.blade.php idnetificar el textarea y modificarlo como sigue añadiendo el id="editor" 
 
 <textarea id="editor" name="content" col="3" ></textarea>
@@ -295,8 +143,7 @@ http://example-app.test/postCRUD/create
 // Creamos una publicación utilizando el CKEditor, si en la lista aparece el código html en lugar de la 
 // interpretación de ese código, recordar el {!! $variable !!} en lugar de un {{ $variable }}, 
 // Por ejemplo, en la resource>views>post>edit.blade.php <textarea name="content" col="3">{!!$post->content!!}</textarea>
-// No me funciona muy bien, no me hace ningún caso. 
-// A ver, en resources>views>components>cards-posts.blade.php cambiar esto:
+//  en resources>views>components>cards-posts.blade.php cambiar esto:
 
 // Original
 <p class="mb-4 text-base">{{ $post->content }}</p>
@@ -304,20 +151,265 @@ http://example-app.test/postCRUD/create
 <p class="mb-4 text-base">{!! $post->content !!}</p>
 
 
-// Y ahora sale bien, pero como habíamos metido un montón de código html mediante el factory, hay algunos que salen fatal
-// Borro todos las publicaciones que metió el factory con código html porque se vuelve loco e intenta crear una página html
+// Y ahora sale bien, pero como el factory ha incluído código html hay algunas publicaciones que no se renderizan correctamente
+// Borrar las publicaciones que creó el Factory con código html porque se vuelve loco e intenta crear una página html
 // Y ahora SI se ve el formato y no el código html del formato. 
-// De todas maneras, mucho ojo, porque estamos en Tailwind y los código html que insertes se renderizarán según Tailwind
+// De todas maneras, mucho ojo, porque estamos en TailwindCSS y los código html que insertes se renderizarán según tailwindcss
 // Por ejemplo, si pones un H2 se verá el H2 de Tailwind, no renderizará según html estándar. 
 // Se puede arreglar en la configuraciones de CKEditor (para alumnos pros)
 
-// Ahora el problema que tengo es que el el create se ve mal renderizado, habría que poner los campos uno debajo de otro
-// No sé como hacerlo, habría que mirar tailwind y cambiar las clases. 
-// Al final he editato el resourves>views>post>create.blade.php y he añadido unos <div></div> para cada input dentro del <form>
-// Más adelante digo como resolverlo y renderizar correctamente para tener una presentación mejor hecha. 
+// Hacer pruebas creando una tabla, etc. 
+// Se podrían crear una estructura completa, por ejemplo, una página html (no se ha probado)
+// Según CKEditor si subes una foto la textualiza (creo no se ha probado) 
 
-// Hacer pruebas creando una tabla, etc. Podrías crear una estructura completa, por ejemplo, una página html (no lo he probado) 
-// Según CKEditor si subes una foto la textualiza (creo no lo he probado) 
+///////////////////////////////////////  FIN CKEditor
 
-////////////////////////////  CKEditor
+
+
+
+
+////////////////////////////  RELACIONES
+
+
+/////////  CREATE
+
+// Veamos, cómo asignar Categorías a una Publicación 
+
+http://example-app.test/postCRUD/create
+
+// A una publicación cualquiera hay que poder asignarle una Category de las que tenemos. 
+// Veamos cómo, y en general, veamos cómo poder gestionar las relaciones 1:N. 
+
+// Editar el Controlador pertienente: app>Http>Controllers>PostControllerCRUD.php a la funcion create() 
+// Este PostControllerCRUD está lleno de código comentado de las pruebas que hemos ido haciendo 
+// Es buena idea copiarlo, para guardar los ejemplos, y tener un limpio 
+// Una vez hecho backup del original, limpiar todo el código comentado 
+
+// Añadimos el siguiente código en el método create(), para recuperar todas las Category, 
+//  y recordar el import las class Category en el PostControllerCRUD.php
+
+// Original 
+    public function create()
+    {
+        
+        return view('post.create'); // Llama a la vista create.blade.php que muestra el formulario de creación
+    }
+
+// Nuevo 
+    public function create()
+    {
+        
+        $categories = Category::all(); // Recuperamos las categorías para asignarlas en el create
+        return view('post.create', ['categories' => $categories]); // Llama a la vista create.blade.php con Categories 
+    }
+
+// Y ahora, en la View resources>views>post>create.blade.php, que es donde lo recibiremos
+//      primero lo probamos añadiendo un @dd() para verlo al inicio del código del formulario, justo antes del  <div class="py-12">
+
+
+    </x-slot>
+
+    @dd($categories);  // Para comprobar que se reciben las categories
+
+    <div class="py-12">
+
+http://blog-app.test/postCRUD/create 
+
+ // Y deberían verse. 
+      #attributes: array:7 [
+        "id" => 1
+        "title" => "Noves tecnologies"
+        "url_clean" => "noves_tecnologies"
+        "start_date" => null
+        "end_date" => null
+        "created_at" => "2024-09-12 13:04:34"
+        "updated_at" => "2024-09-12 13:04:34"
+      ]
+
+// Así como está ahora, pasa toda la info que vemos con el @dd($categories);
+// Recordar que podemos hacer que pase menos info, una info más simplificada con el 'pluck'
+// Es bueno aplicarlo aquí para que sea más ágil, pensar que podría pasar mucha info
+// El PostControllerCRUD.php, lo dejamos así 
+
+    public function create()
+    {
+        
+        $categories = Category::all(); // Recuperamos las categorías para asignarlas en el create
+        return view('post.create', ['categories' => $categories]); // Llama a la vista create.blade.php con Categories 
+    }
+
+// Comprobarlo otra vez 
+http://blog-app.test/postCRUD/create 
+
+// Ahora el @dd($categories); escupe una info mucho más escueta y lo que realmente necesitamos
+Illuminate\Support\Collection {#1332 ▼ // resources\views/post/create.blade.php
+  #items: array:8 [▼
+    "Noves Tecnologies" => 1
+    "Disseny personal" => 2
+    "Il·lustracions" => 3
+    "Art i cultura" => 4
+    "TOMEU" => 6
+    "HOLA QUE TAL" => 8
+    "TOMMY" => 9
+    "ABCDEF" => 10
+  ]
+  #escapeWhenCastingToString: false
+}
+
+// En el create.blade.php finalmente, borrar o comentar el  @dd($categories); 
+// (Yo lo he tenido que borrar, no comenta bien y hace un desastre en el html) 
+
+// Y ahora tendremos que añadir un desplegable de Categories.
+// Añadir el siguiente código que nos renderiza el desplegable de Categories 
+
+                        <div class="mb-3">
+                            <label for="categories_id">Categories</label>
+                            <select name="categories_id" class="mt-1 block w-full">
+                            @foreach ($categories as $title => $id)
+                                <option value="{{$id}}">{{$title}}</option>
+                            @endforeach
+                            </select>
+                        </div> 
+
+// Ya tenemos maquetada la página con un desplegable 1:N
+
+// Ahora, hay que guardarlo, cuando creamos la publicación deberemos guardar también la Category seleccionada
+// Para ello, acceder a PostControllerCRUD.php al método store() y observar como ahora mismo NO guardamos la Category 
+// Ver como se guarda uno a uno los campos que llegan
+// Para empezar, añadir un $post->category_id = $request->content; 
+// Y ya que estamos podemos aprovechar y guardar también el Posted (yes / not)
+//  y también eliminar el with('status','<h1>Publicación creada correctamente</h1>'); 
+//  ya que si hay error lo mostrará, y si no, salta al index(), suponiendo se ha creado ok. 
+/  También se podría hacer un orderBY en el index para mostrar inversamente por ID y nos 
+//  mostraría el último creado. 
+// Queda como sigue:
+
+    public function store(GuardarPostRequest $request)
+    {
+       
+        $post = new Post; 
+
+        $post->title = $request->title;
+        $post->url_clean = $request->url_clean;  
+        $post->content = $request->content; 
+        $post->posted = $request->posted; 
+        $post->category_id = $request->categories_id; // Añade la FK de category
+        $post->user_id = User::all()->random()->id; // Para que la FK user_id funcione, elegimos al azar
+
+        $post->save(); 
+
+        return redirect()->route('postCRUD.index'); 
+    }
+
+// Y vamos a probarlo, ahora mirando la DDBB todos tienen (uno aleatorio)
+//	crear uno y comprobarlo directamente en la DDBB
+http://example-app.test/postCRUD/create
+
+
+// Si no renderiza bien, recordar generar las class de tailwindcss
+λ npm run build // Genera el fichero de clases css, pero no rastrea cambios
+λ npm run dev // Rastrea cambios y los aplica en dinámicamente
+
+/////////  SHOW 
+
+
+//// Vamos a ver cosas de las relaciones desde el punto de vista de Eloquent
+// (https://laravel.com/docs/11.x/eloquent-relationships)
+// Where o Join para cargar las Categorias de las publicaciones
+// En app>Http>Controllers>PostControllerCRUD vamos a show()
+
+// Y podríamos hacer lo siguiente
+        // Obtenemos una categoria
+        $cat = Category::where('id', $postCRUD->category_id); 
+
+// Y luego pasarla, pero esto es hacerlo a pelo, 
+// Eloquent nos deja desde el modelo (Post) poder acceder a las Category
+// Vamos al app>Models>Post.php y ver que hay un método publico que se llama category()
+
+    public function category() // 1 Post es de 1 Category
+    {
+      return $this->belongsTo(Category::class);  // N:1
+    }
+
+// Le estamos diciendo que tiene una relación belongsTo (un Post pertenece a una Category) 
+
+
+// Revisado esto, vamos al resoruces>views>components>cards-post.blade.php 
+// que es donde se renderizan las publicaciones creadas
+// Llamo a este método para que me devuelva la Category y la mostramos en la View
+
+        <h3 class="mb-2 text-xl font-medium leading-tight">{{ $post->category->title }}</h3>
+
+// Ojo, puede generar un error si hay algún null en la DDBB 
+//  en tal caso, añadiremos un condicional en el card-posts.blade.php para prevenir esta posibilidad
+
+        @if ($post->category)
+            <h3 class="mb-2 text-xl font-medium leading-tight">{{ $post->category->title }}</h3>
+        @endif
+
+// Ya ahora sí que funcionará correctamente en todos los casos
+
+
+
+// Ejercicio: Hacer exáctamente lo mismo para user()
+//  Recordar que el user, ahora mismo, se toma con una función aleatoria en el store()
+//	lo que vamos haríamos es mostrarlo, en absoluto modificarlo o añadirlo en la creación
+// Revisar en Model Posts el método user() y es lo mismo, se aplicaría la misma estrategia 
+    public function user() 
+    {
+        //Relación Eloquent extracción User desde Post
+        return $this->belongsTo(User::class); 
+    }
+
+// Ahora mismo, en card-posts.blade.php, añadir
+        <p class="mb-4 text-sm">user: {{$post->user->name}}</p>
+
+
+// Finalmente, la View card-posts.blade.php quedaría asi 
+
+<div class="block rounded-lg bg-white shadow-secondary-1">
+    <div class="p-6 text-surface">
+        <h5 class="mb-2 text-xl font-medium leading-tight">{{ $post->title }}</h5>
+        <h3 class="mb-2 text-xl font-medium leading-tight">{{ $post->url_clean }}</h3>
+        @if ($post->category)
+            <h3 class="mb-2 text-xl font-medium leading-tight">{{ $post->category->title }}</h3>
+        @endif
+        <p class="mb-4 text-base">{{ $post->content }}</p>
+        <p class="mb-4 text-sm">user: {{$post->user->name}}</p>
+        <p class="mb-4 text-sm">posted: {{ $post->posted }}</p>
+        <p class="mb-4 text-sm">created at: {{ $post->created_at }}</p>
+        <p class="mb-4 text-sm">updated at: {{ $post->updated_at }}</p>
+        <a href="{{route('postCRUD.show' , ['postCRUD' => $post->id])}}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Show</a>
+        <a href="{{route('postCRUD.edit' , ['postCRUD' => $post->id ])}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
+        <form action="{{route('postCRUD.destroy' , ['postCRUD' => $post->id ])}}" method="POST" class="float-right">
+           @method('DELETE')
+           @csrf
+           <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete</button>
+        </form>
+    </div>
+</div>
+
+// Probar que ahora se muestra todo
+http://blog-app.test/postCRUD
+
+
+/////////  UPDATE
+
+
+// Recordar que en el PostControllerCRUD en update() tenemos una actualización masiva
+    public function update(ActualizarPostRequest $request, Post $postCRUD)
+    {
+
+        $postCRUD-> update($request->all()); //Actualizamos el registro de la DDBB 
+        return back(); // Vuelve a la página origen, y vuelve a cargar el registro actualizado
+    }
+
+// Porque en app>Models>Post.php tenemos definido los siguiente
+    protected $fillable = [
+        'title',
+        'url_clean',
+        'content',
+    ];
+// Y no así en el store(), donde tenemos por separado cada uno de los campos (porque el user_id es FK y lo tomamos como random()) 
+// Si deseas hacer un guardado o actualizado masivo, hay que indicarlo en el fillable
 
