@@ -6,6 +6,7 @@
         </h2>
     </x-slot>
 
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -29,6 +30,15 @@
                                 <div>{{$message}}</div>
                             @enderror                  
                         </div>
+
+                        <div class="mb-3">
+                            <label for="categories_id">Categories</label>
+                            <select name="categories_id" class="mt-1 block w-full">
+                                @foreach ($categories as $title => $id)
+                                    <option value="{{$id}}">{{$title}}</option>
+                                @endforeach
+                            </select>
+                        </div> 
 
 
                         <div class="mb-3">

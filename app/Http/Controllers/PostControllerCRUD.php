@@ -44,10 +44,10 @@ class PostControllerCRUD extends Controller
         $post->title = $request->title;
         $post->url_clean = $request->url_clean;  
         $post->content = $request->content; 
-        $post->posted = 'not'; // Por defecto las publicaciones no están posteadas, requiren de supervisión
+        $post->posted = $request->posted; 
+        $post->category_id = $request->categories_id; // Añade la FK de category
         $post->user_id = User::all()->random()->id; // Para que la FK user_id funcione, elegimos al azar
-        $post->category_id = Category::all()->random()->id; // Para que la FK category_id funcione, elegimos al azar
-
+        
         $post->save(); 
 
         return redirect()->route('postCRUD.index'); 

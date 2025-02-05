@@ -166,8 +166,6 @@ http://example-app.test/postCRUD/create
 
 
 
-
-
 ////////////////////////////  RELACIONES
 
 
@@ -175,7 +173,8 @@ http://example-app.test/postCRUD/create
 
 // Veamos, cómo asignar Categorías a una Publicación 
 
-http://example-app.test/postCRUD/create
+http://blog-app.test/postCRUD/create 
+
 
 // A una publicación cualquiera hay que poder asignarle una Category de las que tenemos. 
 // Veamos cómo, y en general, veamos cómo poder gestionar las relaciones 1:N. 
@@ -234,8 +233,9 @@ http://blog-app.test/postCRUD/create
     public function create()
     {
         
-        $categories = Category::all(); // Recuperamos las categorías para asignarlas en el create
-        return view('post.create', ['categories' => $categories]); // Llama a la vista create.blade.php con Categories 
+        //$categories = Category::all(); // Recuperamos las categorías para asignarlas en el create
+        $categories = Category::pluck('id','title'); // Recuperamos las Category, solamente los campos que nos interesan 
+        return view('post.create', ['categories' => $categories]); // Llama a la vista create.blade.php con Categories  
     }
 
 // Comprobarlo otra vez 

@@ -3,6 +3,9 @@
     <div class="p-6 text-surface">
         <h5 class="mb-2 text-xl font-medium leading-tight">{{ $post->title }}</h5>
         <h3 class="mb-2 text-xl font-medium leading-tight">{{ $post->url_clean }}</h3>
+        @if ($post->category)
+            <h3 class="mb-2 text-xl font-medium leading-tight">{{ $post->category->title }}</h3>
+        @endif
         <p class="mb-4 text-base">{{ $post->content }}</p>
         <p class="mb-4 text-sm">user: {{$post->user->name}}</p>
         <p class="mb-4 text-sm">posted: {{ $post->posted }}</p>
