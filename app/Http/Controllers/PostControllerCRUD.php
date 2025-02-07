@@ -69,7 +69,9 @@ class PostControllerCRUD extends Controller
      */
     public function edit(Post $postCRUD)
     {
-        return view('post.edit',['post' => $postCRUD]); // Llama a la vista post.edit que muestra form de update
+
+        $categories = Category::pluck('id','title'); // Recuperamos las categorías, solamente los campos que nos interesan 
+        return view('post.edit',['post' => $postCRUD,'categories' => $categories]); // Llama a la vista post.edit que muestra form de update
     }
 
     /**

@@ -31,6 +31,7 @@ class Post extends Model
         'content',
         'user_id',
         'category_id', 
+        'posted'
     ];
 
     // Atributs que no es volen mostrar amb 'response()->json($posts)'

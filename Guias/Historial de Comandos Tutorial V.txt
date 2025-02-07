@@ -333,7 +333,6 @@ http://example-app.test/postCRUD/create
 
 // Le estamos diciendo que tiene una relación belongsTo (un Post pertenece a una Category) 
 
-
 // Revisado esto, vamos al resoruces>views>components>cards-post.blade.php 
 // que es donde se renderizan las publicaciones creadas
 // Llamo a este método para que me devuelva la Category y la mostramos en la View
@@ -395,8 +394,61 @@ http://blog-app.test/postCRUD
 
 /////////  UPDATE
 
+// Nota: No se actualizará el usuario de la Publicación 
+//  por razones obvias, tampoco se actualizar el created_at o el updated_at
 
-// Recordar que en el PostControllerCRUD en update() tenemos una actualización masiva
+// Lo primero que hacemos es modificar el método edit() del PostControllerCRUD para que 
+//  lea las Categories y las envíe a la View edit. 
+//  Usamos el pluck de la misma manera que lo usamos en el create.
+//  Recordar pasar las categories a la View  
+// El método edit() queda de la siguiente manera:
+
+    public function edit(Post $postCRUD)
+    {
+        $categories = Category::pluck('id','title'); // Recuperamos las categorías, solamente los campos que nos interesan 
+        return view('post.edit',['post' => $postCRUD,'categories' => $categories]); // Hay que crear la vista edit
+    }
+
+// Ahora hay que modificar la View edit.blade.php
+//	y añadir los campos Categories y Publicat para que sean Desplegables
+// Observar que lo que hacemos es, al igual que el crete, mostrarlos con un @foreach, pero aquí
+//  la diferencia está en que hay que determinar cuál es la categoría que ya tiene asignado el post 
+//  para dejarlo seleccionado 
+
+
+                        <div class="mb-3">
+                            <label for="category_id">Categories</label>
+                            <select name="category_id" class="mt-1 block w-full">
+                                @foreach ($categories as $title => $id)
+                                    @if ($post->category_id == $id)
+                                        <option selected value="{{$id}}">{{$title}}</option>                                       
+                                    @else
+                                        <option value="{{$id}}">{{$title}}</option>  
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div> 
+
+// En el caso del posted, simplemente usamos un @if para pintar de una u otra manera
+//  también se podría hacer con un control más sencillo (checked / Unckecked)
+
+                        <div class="mb-3">
+                            <label for="posted" class="form-label">Publicat</label>
+                            <select name="posted" class="mt-1 block w-full">
+                                @if ($post->posted == 'yes')
+                                    <option selected value="yes">Si</option>
+                                    <option value="not">No</option>
+                                @else
+                                    <option value="yes">Si</option>
+                                    <option selected value="not">No</option>
+                                @endif
+                            </select>
+                        </div>
+
+// Finalmente modificar el Model Post
+//	 añadiendo en $fillable los "category_id" y el "posted"
+
+// Recordar que en el PostControllerCRUD en update() ahora tenemos una actualización masiva
     public function update(ActualizarPostRequest $request, Post $postCRUD)
     {
 
@@ -404,12 +456,28 @@ http://blog-app.test/postCRUD
         return back(); // Vuelve a la página origen, y vuelve a cargar el registro actualizado
     }
 
-// Porque en app>Models>Post.php tenemos definido los siguiente
+// Porque en app>Models>Post.php habíamos definido lo siguiente
     protected $fillable = [
         'title',
         'url_clean',
         'content',
     ];
-// Y no así en el store(), donde tenemos por separado cada uno de los campos (porque el user_id es FK y lo tomamos como random()) 
-// Si deseas hacer un guardado o actualizado masivo, hay que indicarlo en el fillable
 
+// Y no así en el store(), donde tenemos por separado cada uno de los campos porque el user_id es FK y lo tomamos como random()
+// También se debería separar cada uno de los campos si fuera necesario un tratamiento, por ejemplo se almacena en la DDBB un 
+//  valor diferente al que se lee (imaginemos almacenar 0/1 en la DDBB en lugar de yes, not, etc.) 
+
+// Si deseamos hacer un guardado o actualizado masivo, como será el caso, hay que indicarlo en el fillable
+// Lo dejamos de esta manera. 
+
+    // Campos que son updatables de manera masiva
+    protected $fillable = [
+        'title',
+        'url_clean',
+        'content',
+        'user_id',
+        'category_id',
+        'posted'
+    ]; 
+
+// Probarlo modificando algunas categorías de Publicaciones

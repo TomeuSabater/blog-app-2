@@ -187,4 +187,14 @@ Route::resource('/postCRUD', PostControllerCRUD::class); // Genera todas la Rout
 //// CRUD Category 
 Route::resource('/categoryCRUD', CategoryControllerCRUD::class); // Genera todas la Route para el Controller de Category
 
+
+///////////////////// CKeditor 
+
+Route::get('/ckeditor', function () {
+    return view('ckeditor');
+});
+
+
+
+
 require __DIR__.'/auth.php';
