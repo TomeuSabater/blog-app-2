@@ -18,7 +18,7 @@ class PostControllerCRUD extends Controller
     public function index()
     {
 
-        $posts = Post::paginate(3); // Obtención de todas las publicaciones en variable $posts
+        $posts = Post::orderBy('created_at','DESC')->paginate(3); // Obtención publicaciones orden fecha creación y paginación
         return view('post.index',['posts' => $posts]);  // Llamada a la View pasando $posts en 'posts' para maquetar el resultado
     }
 
@@ -28,7 +28,6 @@ class PostControllerCRUD extends Controller
     public function create()
     {
         
-        //$categories = Category::all(); // Recuperamos las categorías para asignarlas en el create
         $categories = Category::pluck('id','title'); // Recuperamos las Category, solamente los campos que nos interesan 
         return view('post.create', ['categories' => $categories]); // Llama a la vista create.blade.php con Categories  
     }
@@ -59,7 +58,6 @@ class PostControllerCRUD extends Controller
     public function show(Post $postCRUD)
     {
 
-        // $cat = Category::where('id', $postCRUD->category_id); 
         return view('post.show',['post' => $postCRUD]);  // El nombre del parámetro en la llamada es postCRUD/{postCRUD}  
     }
     
@@ -89,9 +87,8 @@ class PostControllerCRUD extends Controller
      */
     public function destroy(Post $postCRUD)
     {
-        // Eliminación del registro 
-        $postCRUD->delete(); 
-        // return back(); 
+
+        $postCRUD->delete();  // Eliminación del registro 
         return back()->with('status', 'Publicación eliminada correctamente'); // Vuelve a la página llamante con un mensaje 
     }
 }

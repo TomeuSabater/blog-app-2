@@ -40,6 +40,13 @@
                             </select>
                         </div> 
 
+                        <div class="mb-3">
+                            <label for="content">Contingut</label>
+                            <textarea name="content" minlength="5" maxlength="500" style="@error('content') border-color:RED; @enderror" rows="5" class="mt-1 block w-full"></textarea>
+                            @error('content')
+                                <div>{{$message}}</div>
+                            @enderror
+                        </div>
 
                         <div class="mb-3">
                             <label for="posted" class="form-label">Publicat</label>
@@ -47,14 +54,6 @@
                                 <option value="yes">Si</option>
                                 <option value="not">No</option>
                             </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="content">Contingut</label>
-                            <textarea style="@error('content') border-color:RED; @enderror" name="content" col="3" class="mt-1 block w-full"></textarea>
-                            @error('content')
-                                <div>{{$message}}</div>
-                            @enderror
                         </div>
 
                         <div>

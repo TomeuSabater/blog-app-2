@@ -14,7 +14,7 @@ class CategoryControllerCRUD extends Controller
      */
     public function index()
     {
-        $categories = Category::paginate(3); // Devuelve el resultado de 3 en 3
+        $categories = Category::orderBy('created_at','DESC')->paginate(3); // Obtención categorías orden fecha creación y paginación
         return view('category.index',['categories' => $categories]); // Los mostramos con la View 
     }
 

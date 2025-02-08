@@ -415,7 +415,6 @@ http://blog-app.test/postCRUD
 //  la diferencia está en que hay que determinar cuál es la categoría que ya tiene asignado el post 
 //  para dejarlo seleccionado 
 
-
                         <div class="mb-3">
                             <label for="category_id">Categories</label>
                             <select name="category_id" class="mt-1 block w-full">
@@ -481,3 +480,234 @@ http://blog-app.test/postCRUD
     ]; 
 
 // Probarlo modificando algunas categorías de Publicaciones
+
+
+//////////////////////////////////// Vamos a cerrar algunos temas pendientes que nos quedan
+
+// Completamos el Menú de opciones para que haya puntos de Menú para Crear Publicaciones y Categorías
+// En la View de navigation.blade.php añadir lo siguiente (queda de la siguiente manera)
+
+                <!-- Navigation Links -->
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
+
+                    <!-- Links para Publicaciones -->
+                    <x-nav-link :href="route('postCRUD.index')" :active="request()->routeIs('postCRUD.index')">
+                        {{ __('Publicaciones') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('postCRUD.create')" :active="request()->routeIs('postCRUD.create')">
+                        {{ __('Publicación [Nueva]') }}
+                    </x-nav-link>
+
+                    <!-- Links para Categorias -->
+                    <x-nav-link :href="route('categoryCRUD.index')" :active="request()->routeIs('categoryCRUD.index')">
+                        {{ __('Categorias') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('categoryCRUD.create')" :active="request()->routeIs('categoryCRUD.create')">
+                        {{ __('Categoría [Nueva]') }}
+                    </x-nav-link>
+                </div>
+            </div>
+
+// Recordar actualizar también los menú responsivos, quedarían de la siguiente manera:
+
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+
+            <!-- Links Responsivos para Publicaciones -->
+            <div class="pt-2 pb-3 space-y-1">
+                <x-responsive-nav-link :href="route('postCRUD.index')" :active="request()->routeIs('postCRUD.index')">
+                    {{ __('Publicaciones') }}
+                </x-responsive-nav-link>
+            </div>
+            <div class="pt-2 pb-3 space-y-1">
+                <x-responsive-nav-link :href="route('postCRUD.create')" :active="request()->routeIs('postCRUD.create')">
+                    {{ __('Publicación [Nueva]') }}
+                </x-responsive-nav-link>
+            </div>
+    
+            <!-- Links Responsivos para Categorías -->
+            <div class="pt-2 pb-3 space-y-1">
+                <x-responsive-nav-link :href="route('categoryCRUD.index')" :active="request()->routeIs('categoryCRUD.index')">
+                    {{ __('Categorias') }}
+                </x-responsive-nav-link>
+            </div>
+            <div class="pt-2 pb-3 space-y-1">
+                <x-responsive-nav-link :href="route('categoryCRUD.create')" :active="request()->routeIs('categoryCRUD.create')">
+                    {{ __('Categoría [Nueva]') }}
+                </x-responsive-nav-link>
+            </div>
+
+// Cuando se crea un nuevo elementos (Publicación o Categoría) saltamos a la lista de elementos
+//  y hay que buscar el elemento nuevo, normalmente el último de la lista.
+// Podemos mejorarlo haciendo que la lista de elmentos esté ordenada por fecha de creación (created_at)
+//  de esta manera mostrará en primer lugar el último elemento creado 
+// En el PostControllerCRUD y en el CategoryControllerCRUD modificar el método index() de la siguiente manera
+
+    public function index()
+    {
+
+        $posts = Post::orderBy('created_at','DESC')->paginate(3); // Obtención publicaciones orden fecha creación y paginación
+        return view('post.index',['posts' => $posts]);  // Llamada a la View pasando $posts en 'posts' para maquetar el resultado
+    }
+
+    public function index()
+    {
+        $categories = Category::orderBy('created_at','DESC')->paginate(3); // Obtención categorías orden fecha creación y paginación
+        return view('category.index',['categories' => $categories]); // Los mostramos con la View 
+    }
+
+// Ordenamos los campos tal que se muestren de igual manera en el Index / Show / Edit / Create
+// Aplicamos siguiente orden
+
+$post->title
+$post->url_clean
+$post->category->title
+$post->content
+$post->user->name (Sólo en Index / Show)
+$post->posted 
+$post->created_at (Sólo en Index / Show)
+$post->updated_at (Sólo en Index / Show)
+
+// Aprovechamos y restringimos la cantidad de texto que se puede teclear en el textarea de las Publicaciones
+//  recordar que ahora mismo tenemos una restricción de 255 que 'a priori' es un poco pequeña
+//  la subimos a 500 carácters
+
+// Primero en Requests>GuardarPostRequest y en Requests>ActualizarPostRequests
+
+    public function rules(): array
+    {
+        return [
+            ...
+            'content' => 'required|min:5|max:500',
+        ];
+    }
+
+    public function messages() {
+        return [
+            ...
+            'content.min' => 'El content mínimo son 5 carateres',
+            'content.max' => 'El content máximo son 500 caracters',
+        ]; 
+    }
+
+// Luego en las View de post>create.blade.php y post>edit.blade.php
+// Modificamos la textarea de la siguiente manera
+
+                        <div class="mb-3">
+                            <label for="content">Contingut</label>
+                            <textarea name="content" minlength="5" maxlength="500" style="@error('content') border-color:RED; @enderror" rows="5" class="mt-1 block w-full"></textarea>
+                            @error('content')
+                                <div>{{$message}}</div>
+                            @enderror
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="content">Content</label>
+                            <textarea name="content" minlength="5" maxlength="500" style="@error('content') border-color:RED; @enderror" rows="5" class="mt-1 block w-full">{{$post->content}}</textarea>
+                            @error('content')
+                                <div>{{$message}}</div>
+                            @enderror
+                        </div>
+
+// Finalmente en el En el método de store() del PostControllerCRUD tenemos esto 
+        $post->user_id = User::all()->random()->id; // Para que la FK user_id funcione, elegimos al azar
+
+//  Que es una selección del usuario de la Publicación mediante una función aleatoria
+//  tenemos que asignar el usuario correcto, para ello utilizaremos la autenticación (Middleware)
+
+
+///////////////// MIDDLEWARE (Autenticación Usuarios)
+
+// Ahora mismo tenemos Routes y podemos tener un Middleware (opcional) 
+//  en las Routes antes de llamar al Controller
+// El Middleware permite validaciones y control de acceso sobre cada una de las rutas. 
+ 
+// Ahora mimo no está limitado el acceso a las url
+// Si en situación de Log Out accedo por ejemplo a 
+http://blog-app.test/postCRUD/
+
+// Devuelve un error, porque no tiene a nadie logineado, impide el acceso pero por un error, no por lógica
+// Hay que controlar esto, ahora no se consigue acceder a la url por un error, pero no porque se impida su acceso
+// 	    Internal Server Error
+// 	    Attempt to read property "name" on null
+
+// Vamos a controlarlo mediante un Middlware a nivel de Routes. 
+// recordar el routes>web.php, vemos los siguiente:
+// (Se recomienda crear un web_copy.php y limpiar el web.php de código de ejemplo)
+
+// Observamos lo siguiente 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+// tal que, sin estar logineado, probar el 
+http://blog-app.test/dashboard
+
+// Te redirige a
+http://blog-app.test/login
+
+
+// Esto es exáctamente lo que queremos y lo controla el Middleware de autenticación
+// Si se intenta acceder a alguna ruta, sin estar logineado, que se rediriga a la pantalla de login
+
+// Hay diferentes maneras de obligar a estar logineado para crear una Publicación
+// Podemos decirlo directamente en la route, como el ejemplo anterior, añadiendo
+// ->middleware(['auth', 'verified'])->name('dashboard');
+
+// Pero también podemos hacerlo agrupando Routes
+// 	todas las Routes que se incluya dentro de esta función 
+// 	serán Routes que por defecto tendrán en el middleware un 'auth'
+// Como tenemos las Routes generadas de manera agrupada, es la manera ideal 
+
+// Originalmente tenemos:
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Entonces, en web.php vamos a mover las rutas agrupadas del CRUD y ubicarlas dentro de esta función tal que queda así 
+Route::middleware('auth')->group(function () {
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    //////////////// Routes del CRUD
+    Route::resource('/postCRUD', PostControllerCRUD::class); // Genera automáticamente todas las rutas para el controllador PostControllerCRUD
+    Route::post('/posts/{post}/edit/images',[PostControllerCRUD::class, 'image'])->name('post.image'); // Para imágenes
+
+});
+
+// Hacer Log Out y probar ahora de acceder a algunas rutas
+http://example-app.test/postCRUD/create 
+http://example-app.test/postCRU
+
+// Ahora te redirige al login automáticamente, el Middleware hace su trabajo. 
+//  no nos permite acceder a una Route sin estar antes logineado
+
+// Y ahora es cuando podremos redondear la función store() del PostController
+// Ahora mismo tenemos esto en el PostControllerCRUD
+
+    public function store(GuardarPostRequest $request)
+    {
+ 	...
+        $post->user_id = User::all()->random()->id; // Para que la FK funcione, elegimos aleatorio. 
+	...
+    }
+
+// Y Ahora ya podremos ajustarlo de manera adecuada. 
+// la funció store() queda de la siguiente manera:
+// (Recordar importar la clase use Illuminate\Support\Facades\Auth;)
+        $post->user_id = Auth::user()->id;  // Obtiene el usuario logineado 
+
+// Así obligamos que el usuario logineado es el que se registra como usuario de creación de la Publicación
+// Hacer una prueba creando algunos Post. 
+// En el listado de publicaciones, ya debería visualizarse la publicación del usuario logineado 
