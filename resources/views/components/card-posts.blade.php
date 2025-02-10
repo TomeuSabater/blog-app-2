@@ -6,7 +6,7 @@
         @if ($post->category)
             <h3 class="mb-2 text-xl font-medium leading-tight">{{ $post->category->title }}</h3>
         @endif
-        <p class="mb-4 text-base">{{ $post->content }}</p>
+        <p class="mb-4 text-base">{!! $post->content !!}</p>
         <p class="mb-4 text-sm">user: {{$post->user->name}}</p>
         <p class="mb-4 text-sm">posted: {{ $post->posted }}</p>
         <p class="mb-4 text-sm">created at: {{ $post->created_at }}</p>

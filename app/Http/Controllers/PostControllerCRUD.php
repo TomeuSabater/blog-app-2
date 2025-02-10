@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\GuardarPostRequest;
 use App\Http\Requests\ActualizarPostRequest;
 
@@ -45,7 +46,8 @@ class PostControllerCRUD extends Controller
         $post->content = $request->content; 
         $post->posted = $request->posted; 
         $post->category_id = $request->categories_id; // Añade la FK de category
-        $post->user_id = User::all()->random()->id; // Para que la FK user_id funcione, elegimos al azar
+        // $post->user_id = User::all()->random()->id; // Para que la FK user_id funcione, elegimos al azar
+        $post->user_id = Auth::user()->id; 
         
         $post->save(); 
 

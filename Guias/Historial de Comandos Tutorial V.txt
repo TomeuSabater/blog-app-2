@@ -121,48 +121,7 @@ http://<blog-app.test>/dashboard
 //// Veámoslo:
 
 
-///////////////////////////////////////   INSTALACIÓN ORIGINAL DEL CKEDITOR
 
-****** Este plugin a cambiado el método de instalación en Laravel 
-
-
-/////////////////////////////////////// PRUEBAS CKEDITOR 
-
-// Vampos por fin a utilizarlo, hasta ahora lo que hemos hecho ha sido incluir librerias en el código html necesarias
-// En resources>views>post>create.blade.php idnetificar el textarea y modificarlo como sigue añadiendo el id="editor" 
-
-<textarea id="editor" name="content" col="3" ></textarea>
-
-// El resources>js>ckeditor.js, que es un js, buscará todos los elementos con id="editor" para añadirles la borra de formato
-// Vamos a crear un post (recordar arrancar el npm run dev para que todo funcione)
-
-λ npm run dev
-http://example-app.test/postCRUD/create
-
-
-// Creamos una publicación utilizando el CKEditor, si en la lista aparece el código html en lugar de la 
-// interpretación de ese código, recordar el {!! $variable !!} en lugar de un {{ $variable }}, 
-// Por ejemplo, en la resource>views>post>edit.blade.php <textarea name="content" col="3">{!!$post->content!!}</textarea>
-//  en resources>views>components>cards-posts.blade.php cambiar esto:
-
-// Original
-<p class="mb-4 text-base">{{ $post->content }}</p>
-// Nuevo 
-<p class="mb-4 text-base">{!! $post->content !!}</p>
-
-
-// Y ahora sale bien, pero como el factory ha incluído código html hay algunas publicaciones que no se renderizan correctamente
-// Borrar las publicaciones que creó el Factory con código html porque se vuelve loco e intenta crear una página html
-// Y ahora SI se ve el formato y no el código html del formato. 
-// De todas maneras, mucho ojo, porque estamos en TailwindCSS y los código html que insertes se renderizarán según tailwindcss
-// Por ejemplo, si pones un H2 se verá el H2 de Tailwind, no renderizará según html estándar. 
-// Se puede arreglar en la configuraciones de CKEditor (para alumnos pros)
-
-// Hacer pruebas creando una tabla, etc. 
-// Se podrían crear una estructura completa, por ejemplo, una página html (no se ha probado)
-// Según CKEditor si subes una foto la textualiza (creo no se ha probado) 
-
-///////////////////////////////////////  FIN CKEditor
 
 
 
@@ -347,7 +306,6 @@ http://example-app.test/postCRUD/create
         @endif
 
 // Ya ahora sí que funcionará correctamente en todos los casos
-
 
 
 // Ejercicio: Hacer exáctamente lo mismo para user()
@@ -711,3 +669,11 @@ http://example-app.test/postCRU
 // Así obligamos que el usuario logineado es el que se registra como usuario de creación de la Publicación
 // Hacer una prueba creando algunos Post. 
 // En el listado de publicaciones, ya debería visualizarse la publicación del usuario logineado 
+
+
+
+/////////////////////////////////////// Instalación del  CKeditor para el Backoffice
+
+
+///////////////////////////////////////  FIN CKEditor
+
