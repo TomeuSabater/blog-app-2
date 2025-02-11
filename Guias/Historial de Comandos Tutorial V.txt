@@ -442,7 +442,16 @@ http://blog-app.test/postCRUD
 
 //////////////////////////////////// Vamos a cerrar algunos temas pendientes que nos quedan
 
-// Completamos el Menú de opciones para que haya puntos de Menú para Crear Publicaciones y Categorías
+// 1.- Completar el Menú para tener acceso a la creación de elementos
+// 2.- Ordernar la lista de elementos x fecha de creación
+// 3.- Ordenar los campos de los elementos tal que haya una coherencia en Create / Edit / Update 
+// 4.- Ajustar el número de carácteres en el textarea y controlarlo también mediante atributos html 
+// 5.- Control de acceso mediante Middleware
+// 6.- CKEditor
+// 7.- Eliminación de Categories asociadas a un Post
+
+
+// 1.- Completamos el Menú de opciones para que haya puntos de Menú para Crear Publicaciones y Categorías
 // En la View de navigation.blade.php añadir lo siguiente (queda de la siguiente manera)
 
                 <!-- Navigation Links -->
@@ -501,7 +510,7 @@ http://blog-app.test/postCRUD
                 </x-responsive-nav-link>
             </div>
 
-// Cuando se crea un nuevo elementos (Publicación o Categoría) saltamos a la lista de elementos
+// 2.- Cuando se crea un nuevo elementos (Publicación o Categoría) saltamos a la lista de elementos
 //  y hay que buscar el elemento nuevo, normalmente el último de la lista.
 // Podemos mejorarlo haciendo que la lista de elmentos esté ordenada por fecha de creación (created_at)
 //  de esta manera mostrará en primer lugar el último elemento creado 
@@ -520,7 +529,7 @@ http://blog-app.test/postCRUD
         return view('category.index',['categories' => $categories]); // Los mostramos con la View 
     }
 
-// Ordenamos los campos tal que se muestren de igual manera en el Index / Show / Edit / Create
+// 3.- Ordenamos los campos tal que se muestren de igual manera en el Index / Show / Edit / Create
 // Aplicamos siguiente orden
 
 $post->title
@@ -532,7 +541,7 @@ $post->posted
 $post->created_at (Sólo en Index / Show)
 $post->updated_at (Sólo en Index / Show)
 
-// Aprovechamos y restringimos la cantidad de texto que se puede teclear en el textarea de las Publicaciones
+// 4.- Aprovechamos y restringimos la cantidad de texto que se puede teclear en el textarea de las Publicaciones
 //  recordar que ahora mismo tenemos una restricción de 255 que 'a priori' es un poco pequeña
 //  la subimos a 500 carácters
 
@@ -574,7 +583,7 @@ $post->updated_at (Sólo en Index / Show)
                             @enderror
                         </div>
 
-// Finalmente en el En el método de store() del PostControllerCRUD tenemos esto 
+// 5- Finalmente en el En el método de store() del PostControllerCRUD tenemos esto 
         $post->user_id = User::all()->random()->id; // Para que la FK user_id funcione, elegimos al azar
 
 //  Que es una selección del usuario de la Publicación mediante una función aleatoria
@@ -671,9 +680,124 @@ http://example-app.test/postCRU
 // En el listado de publicaciones, ya debería visualizarse la publicación del usuario logineado 
 
 
+/////////////////////////////////////// Instalación del  CKEditor para el Backoffice
 
-/////////////////////////////////////// Instalación del  CKeditor para el Backoffice
+// La configuración del CKEditor requiere de una licencia de usuario 
+// La licencia gratuíta (de desarrollo) se obtiene a partir del registros
+//  el alumno deberá registrarse en https://ckeditor.com/ utilizando su correo educativo (@iesemilidarder.com)
 
 
-///////////////////////////////////////  FIN CKEditor
+// Se instala y configura el CKEditor mediante la opción CDN 
+//  hasta el momento, no hemos conseguido hacerlo funcionar mediante la opción Self-hosted (npm/ZIP)
+// La opción CDN se ha conseguido gracias a los alumnos de 2 DAW curso 24/25 (mención especial a Antonio Martínez Mateo)
+// Se puede obtener la documentación oficial de la instalación en :
+// https://ckeditor.com/docs/ckeditor5/latest/getting-started/index.html
+
+
+// Se procederá de la siguiente manera
+// CKEditor require de los siguientes scripts y stylesheet, 
+//  por lo que se ha optado por incluirlos en resources>views>layout>app.blade.php que es el layout 
+//  de nivel superior (el que incluye <!DOCTYPE html>) que utilizamos por defecto para renderizar todas nuestras View. 
+// Dentro de <head> </head> se añaden los scripts y stylesheet del CKEditor "normal" sin "premium features" 
+/   sin las "premium features" porque suponemos que nuestra licencia no los soporta.
+
+    <head>
+        ...
+        <!-- CKEditor -->
+        <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.css" />
+        <script src="https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.umd.js"></script>
+        ...
+    </head>
+
+
+// Seguidamente, accedemos a las View donde deseamos que aparezcan campos con las herramientas que 
+// proporciona el CKEditor, en nuestro caso serían las siguientes View
+// resources>views>post>create.blade.php y resources>views>post>edit.blade.php 
+
+// En create.blade.php se modifica el textarea de la siguiente manera:
+// Nota, se elmina el atributo "rows" el CKEditor toma el control del tamaño (lo convierte en dinámico)
+// Nota, recordar añadir el id="editor" o identificación que hemos elegido para renderizarlo 
+
+        <div class="mb-3">
+            <label for="content">Contingut</label>
+            <textarea id="editor" name="content" minlength="5" maxlength="500" style="@error('content') border-color:RED; @enderror" class="mt-1 block w-full"></textarea>
+            @error('content')
+                <div>{{$message}}</div>
+            @enderror
+        </div>
+
+// Y el siguiente script a pié de la View, entre el último </div> y el </x-app-layout>
+// Nota, en licenseKey: 'licencia', el valor 'licencia' se substituirá por la propia
+
+    <!-- Script para CKEditor -->
+    <script>
+        const {
+            ClassicEditor,
+            Essentials,
+            Bold,
+            Italic,
+            Font,
+            Paragraph
+        } = CKEDITOR;
+
+        ClassicEditor
+            .create( document.querySelector( '#editor' ), {
+                licenseKey: 'licencia',
+                plugins: [ Essentials, Bold, Italic, Font, Paragraph],
+                toolbar: [
+                    'undo', 'redo', '|', 'bold', 'italic', '|',
+                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|'
+                ]
+            } )
+            .then( /* ... */ )
+            .catch( /* ... */ );
+    </script>
+
+</x-app-layout>
+
+// De manera similar para la resources>views>post>edit.blade.php 
+
+// Para que se pueda visualizar correctamente este campo en la lista de elementos
+//  se deberá utilizar la fórmula {{}} en resources>views>components>card-posts.blade.php
+//  de esta manera se renderizan las tag en lugar de mostrarse
+
+        <p class="mb-4 text-base">{!! $post->content !!}</p>
+
+// Nota, si se ha usado un Factory para rellenar con ejemplos esta información
+//  se deberá revisar manualmente, es posible que haya tags de formularios y otros
+//  que rompan la correcta visualización
+
+///////////////////////////////////////  FIN CKEditor BackOffice
+
+// 7.- Eliminación de Categories asociadas a un Post
+// Laravel ofrece otras funcionalidades además de las ya vistas
+//  por ejemplo facilidades para importar imágenes en la DDBB, tests, despliege a producción, etc
+// No obstante, para la correcta programación del BaleArt, se considera que las funcionalidades y facilidades vistas son suficientes
+//  aunque queda un último detalle. 
+// Si intentamos eliminar una Category asociada a un Post, genera un error incontrolado de DDBB
+
+// Crear un Post asociándolo a una de las Category existentes. 
+// Proceder a la eliminación de la Category, se obtendrá un error de "Integrity constraint violation"
+//  ya que se intenta eliminar una Category cuyo ID forma parte de un Post como Foreign Key
+// Existen varias maneras de controlarlo, una de ellas es mediante la definición de un Delete Cascade a nivel de DDBB
+//  aún siendo posible, aquí se descarta esta técnica por ser muy agresiva con la DDBB, y se opta por bloquear
+//  la eliminación de la Category si forma parte de algún Post
+// Se modificara en PostControllerCRUD el método public function destroy(Post $postCRUD) de la siguiente manera
+
+
+// TODO
+
+// 
+
+
+    public function destroy(Post $postCRUD)
+    {
+
+        $postCRUD->delete();  // Eliminación del registro 
+        return back()->with('status', 'Publicación eliminada correctamente'); // Vuelve a la página llamante con un mensaje 
+    }
+
+
+
+
 

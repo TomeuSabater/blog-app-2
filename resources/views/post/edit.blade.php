@@ -47,7 +47,7 @@
 
                         <div class="mb-3">
                             <label for="content">Content</label>
-                            <textarea name="content" minlength="5" maxlength="500" style="@error('content') border-color:RED; @enderror" rows="5" class="mt-1 block w-full">{{$post->content}}</textarea>
+                            <textarea id="editor" name="content" minlength="5" maxlength="500" style="@error('content') border-color:RED; @enderror" class="mt-1 block w-full">{{$post->content}}</textarea>
                             @error('content')
                                 <div>{{$message}}</div>
                             @enderror
@@ -76,5 +76,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Script para CKEditor -->
+    <script>
+        const {
+            ClassicEditor,
+            Essentials,
+            Bold,
+            Italic,
+            Font,
+            Paragraph
+        } = CKEDITOR;
+
+        ClassicEditor
+            .create( document.querySelector( '#editor' ), {
+                licenseKey: 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NzA1OTUxOTksImp0aSI6ImFhYjA1OWRmLWQxZTItNGM1OC1hYzhjLTk0M2YxN2JmOWFkNSIsImxpY2Vuc2VkSG9zdHMiOlsiMTI3LjAuMC4xIiwibG9jYWxob3N0IiwiMTkyLjE2OC4qLioiLCIxMC4qLiouKiIsIjE3Mi4qLiouKiIsIioudGVzdCIsIioubG9jYWxob3N0IiwiKi5sb2NhbCJdLCJ1c2FnZUVuZHBvaW50IjoiaHR0cHM6Ly9wcm94eS1ldmVudC5ja2VkaXRvci5jb20iLCJkaXN0cmlidXRpb25DaGFubmVsIjpbImNsb3VkIiwiZHJ1cGFsIl0sImxpY2Vuc2VUeXBlIjoiZGV2ZWxvcG1lbnQiLCJmZWF0dXJlcyI6WyJEUlVQIl0sInZjIjoiNGVhMzNlZTgifQ.j1H65g0zaXpcL2WRbC3k_ycbtUMlrDU6dg0tP04WIa3ZQrnuV01IfbLGsGfYensDOppVAcnRQXd_diMkAxuMkQ',
+                plugins: [ Essentials, Bold, Italic, Font, Paragraph],
+                toolbar: [
+                    'undo', 'redo', '|', 'bold', 'italic', '|',
+                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|'
+                ]
+            } )
+            .then( /* ... */ )
+            .catch( /* ... */ );
+    </script>
 
 </x-app-layout>

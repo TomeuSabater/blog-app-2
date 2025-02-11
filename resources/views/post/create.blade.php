@@ -70,7 +70,7 @@
         </div>
     </div>
 
-
+    <!-- Script para CKEditor -->
     <script>
         const {
             ClassicEditor,
@@ -93,6 +93,5 @@
             .then( /* ... */ )
             .catch( /* ... */ );
     </script>
-
 
 </x-app-layout>
