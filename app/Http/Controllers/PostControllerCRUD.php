@@ -46,12 +46,11 @@ class PostControllerCRUD extends Controller
         $post->content = $request->content; 
         $post->posted = $request->posted; 
         $post->category_id = $request->categories_id; // Añade la FK de category
-        // $post->user_id = User::all()->random()->id; // Para que la FK user_id funcione, elegimos al azar
         $post->user_id = Auth::user()->id; 
         
         $post->save(); 
 
-        return redirect()->route('postCRUD.index'); 
+        return redirect()->route('postCRUD.index')->with('status','Publicación creada correctamente'); 
     }
 
     /**

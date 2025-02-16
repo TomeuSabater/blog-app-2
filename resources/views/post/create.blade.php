@@ -56,10 +56,6 @@
                             </select>
                         </div>
 
-                        <div id="editor2">
-                            <p>Hello from CKEditor 5!</p>
-                        </div>
-
                         <div>
                             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Crear</button>
                         </div>

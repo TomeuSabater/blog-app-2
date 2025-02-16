@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Requests\GuardarCategoryRequest;
@@ -39,7 +40,7 @@ class CategoryControllerCRUD extends Controller
 
         $category->save(); 
 
-        return redirect()->route('categoryCRUD.index')->with('status','<h1>Categoría creada correctamente</h1>'); // Salta a View index con mensaje
+        return redirect()->route('categoryCRUD.index')->with('status','Categoría creada correctamente'); // Salta a View index con mensaje
     }
 
 
@@ -72,10 +73,18 @@ class CategoryControllerCRUD extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $categoryCRUD)
+    public function destroy(Category $categoryCRUD) 
     {
-        // Eliminación del registro 
-        $categoryCRUD->delete(); 
-        return back()->with('status','Categoría eliminada correctamente'); // Vuelve a página llamante con un mensaje 
+        // Eliminación del recurso
+        $post = Post::where('category_id','=',$categoryCRUD->id)->count(); // Corroborar que no es una FK en Post
+
+        // Si existe algún Post con el category_id a borrar no lo borramos y mostramos un mensaje
+        // Si no exite ningún Post con el catetgory_id a borrar entonces sí que lo borramos 
+        if($post) {
+            return back()->with('status','No es posible eliminar la Categoría');
+        } else {
+            $categoryCRUD->delete(); 
+            return back()->with('status','Categoría eliminada correctamente');
+        }
     }
 }

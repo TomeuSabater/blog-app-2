@@ -758,12 +758,12 @@ http://example-app.test/postCRU
 // De manera similar para la resources>views>post>edit.blade.php 
 
 // Para que se pueda visualizar correctamente este campo en la lista de elementos
-//  se deberá utilizar la fórmula {{}} en resources>views>components>card-posts.blade.php
+//  se deberá utilizar la fórmula {!! !!} en resources>views>components>card-posts.blade.php
 //  de esta manera se renderizan las tag en lugar de mostrarse
 
         <p class="mb-4 text-base">{!! $post->content !!}</p>
 
-// Nota, si se ha usado un Factory para rellenar con ejemplos esta información
+// Nota: si se ha usado un Factory para rellenar con ejemplos esta información
 //  se deberá revisar manualmente, es posible que haya tags de formularios y otros
 //  que rompan la correcta visualización
 
@@ -782,22 +782,95 @@ http://example-app.test/postCRU
 // Existen varias maneras de controlarlo, una de ellas es mediante la definición de un Delete Cascade a nivel de DDBB
 //  aún siendo posible, aquí se descarta esta técnica por ser muy agresiva con la DDBB, y se opta por bloquear
 //  la eliminación de la Category si forma parte de algún Post
-// Se modificara en PostControllerCRUD el método public function destroy(Post $postCRUD) de la siguiente manera
 
 
-// TODO
+// Se modificara del CategoryControllerCRUD el método  public function destroy(Category $categoryCRUD)  de la siguiente manera:
+//  Inicialmente, se comprueba si existe algún Post con un category_id igual al que se desea eliminar
+//      Si existe, entonces se impide su eleminación y se muestra un mensaje informando de este hecho
+//      Si no existe, entonces si se elimina y también se muestra un mensaje de confirmación de borrado
 
-// 
-
-
-    public function destroy(Post $postCRUD)
+ public function destroy(Category $categoryCRUD) 
     {
+        // Eliminación del recurso
+        $post = Post::where('category_id','=',$categoryCRUD->id)->count(); // Corroborar que no es una FK en Post
 
-        $postCRUD->delete();  // Eliminación del registro 
-        return back()->with('status', 'Publicación eliminada correctamente'); // Vuelve a la página llamante con un mensaje 
-    }
+        // Si existe algún Post con el category_id a borrar no lo borramos y mostramos un mensaje
+        // Si no exite ningún Post con el catetgory_id a borrar entonces sí que lo borramos 
+        if($post) {
+            return back()->with('status','No es posible eliminar la Categoría');
+        } else {
+            $categoryCRUD->delete(); 
+            return back()->with('status','Categoría eliminada correctamente');
+        }
 
+// Modificamos ahora la View index.blade.php de Category para mostra los mensajes
+// Quedará de la siguiente manera. 
 
+<!-- Listado de Categories -->
+<div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6 text-gray-900">
+                
+                <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
+                <!-- el if es necesario puesto que la primera vez no tendremos status -->
+                @if (session('status'))
+                    <div class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+                        <span class="font-medium">{{ session('status') }}</span>
+                    </div>
+                @endif
 
+                <!-- Se muestran los elementos en forma de Card -->
+                @each('components.card-categories',$categories,'category') <!-- Listado de Categorías -->
+                {{ $categories->links() }} <!-- Paginación -->
 
+            </div>
+        </div>
+    </div>
+</div>
 
+// Nota: Ahora podemos modificar el método public function store(GuardarCategoryRequest $request) 
+//  para mostrar un menaje de creación correcta. 
+
+        return redirect()->route('categoryCRUD.index')->with('status','Categoría creada correctamente'); 
+
+// Probarlo intentando borrar categorias que forman parte de publicaciones y otras que no. 
+// recordar lanzar un npm run build ya que los mensajes tienen algunas class no usadas anterioremente
+
+// Ejercicio: Aprovechar el mensaje añadido a la vies index.blade.php para añadir los siguiente mensaje
+//  en public function store(GuardarCategoryRequest $request)
+
+        return redirect()->route('categoryCRUD.index')->with('status','Categoría creada correctamente'); // Salta a View index con mensaje
+
+// Ejercicio: Aplicar la misma estrategia de mensajes para los métodos store() y destroy() del PostControllerCRUD 
+
+        return redirect()->route('postCRUD.index')->with('status','Publicación creada correctamente'); 
+        return back()->with('status', 'Publicación eliminada correctamente');
+
+// Obviamente, antes se debe añadir el código html en la View index.blade.php del listado de Posts
+//  de manera similar a cómo lo hemos hecho para Categorías 
+
+ <!-- Listado de Posts -->
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+
+                    <!-- Comprobamos si tenemos que mostrar un mensaje de status -->
+                    <!-- el if es necesario puesto que la primera vez no tendremos status -->
+                    @if (session('status'))
+                        <div class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+                            <span class="font-medium">{{ session('status') }}</span>
+                        </div>
+                    @endif
+
+                    <!-- Se muestran los elementos en forma de Card -->
+                    @each('components.card-posts',$posts,'post')
+                    {{ $posts->links() }} <!-- Paginación -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    ********************* Fin del tema Historial de Comandos Tutorial V
